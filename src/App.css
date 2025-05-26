@@ -1,42 +1,189 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+html, body, #root {
+  width: 100vw;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.main-label{
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: row;
+width: auto;
+border: none;
+color: black;  
+text-align: center;
+line-height: 2.5em;
+border-radius: 5px;
+font-size: 17px;
+height: 40px; 
+margin: 0 20px;
+position: relative;
+cursor: pointer;
+transition: color 0.3s ease, border-color ease;
+text-decoration: none;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.main-label.active {
+  color: #4B89DC;
+}
+
+.main-label.active::after{
+  content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #4B89DC;
+    border-radius: 1px;
+}
+
+.main-label:hover {
+  color: #4B89DC;
+}
+
+.LoginButton{
+display: inline-block;
+width: 80px;
+padding: 8px;
+margin-top: 8px;
+text-align: center;
+background-color: #4B89DC;
+color: white;
+border-radius: 5px;
+font-size: 16px;
+box-sizing: border-box;
+text-decoration: none;
+}
+
+.LoginButton:hover {
+  background-color: rgb(180, 210, 250);
+  color: white;
   }
-  to {
-    transform: rotate(360deg);
+
+.link-style{
+  text-decoration: none;
+  color: black;
+}
+
+.link-style:hover{
+  color: #4B89DC;
+}
+
+.checkbox-label{ /* label */
+display: inline-flex;
+align-items: center;
+cursor: pointer;
+font-size: 16px;
+ margin-right: 20px;
+  white-space: nowrap;
+}
+
+.hidden-checkbox{ /* input */
+display: none;
+}
+
+.style-checkbox{ /* span */
+width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.hidden-checkbox:checked + .style-checkbox {
+    border-color: #4B89DC;
+    background-color: #4B89DC;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+ .hidden-checkbox:checked + .style-checkbox::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
   }
+
+.checkbox-group{
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: left;
+  gap: 50px 25px;
+  max-width: 800px; 
 }
 
-.card {
-  padding: 2em;
+
+.rc-slider{
+    margin-top: -10px;
+    margin-bottom: 30px;
 }
 
-.read-the-docs {
-  color: #888;
+.rc-slider-track{
+  background-color: #4B89DC;
+  height: 5px;
+}
+
+.rc-slider-handle{
+  border: 8px solid #4B89DC;
+  background-color: white;
+}
+
+.rc-slider-mark-text{
+  font-size: 14px;
+  white-space: nowrap;
+  color: black;
+}
+
+.status-label{
+padding: 5px;
+width: 60px;
+border-radius: 10px;
+font-size: 13px;
+font-weight: 500;
+color: white;
+display: inline-block;
+}
+
+.status-bidding{ 
+  color: #854D0E;
+  background-color: #FEF9C3; /*입찰중*/
+}
+
+.status-done{
+  color: #991B1B;
+  background-color: #FEE2E2;  /*입찰완료*/
+}
+
+.status-active{
+  color: #166534;
+  background-color: #DCFCE7;  /*게재중*/
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0px;
+}
+
+.pagination li a{
+  cursor: pointer;
+  padding: 6px 12px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.pagination li.active a{
+  background-color: #4B89DC;
+  color: white;
+  border: 1px solid #4B89DC;
 }
