@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import './App.css';
 import AdServingPage from './pages/Adserving/AdServingPage';
 import AdBidPage from './pages/AdBid/AdBidPage';
-import './App.css';
-import AdServingPage from './pages/AdServingPage';
 import Mainpage from './pages/Mainpage';
 import Signup from './pages/Signup';
 import SignupForm from './pages/SignupForm';
