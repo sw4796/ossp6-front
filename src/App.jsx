@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AdServingPage from './pages/Adserving/AdServingPage';
+import AdBidPage from './pages/AdBid/AdBidPage';
 import './App.css';
 
 function App() {
@@ -7,7 +8,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/ad-serving" element={<AdServingPage />} />
-        {/* ...다른 페이지 */}
+        <Route path="/ad-bid" element={<AdBidPage />} />
       </Routes>
     </BrowserRouter>
   );
