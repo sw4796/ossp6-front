@@ -1,0 +1,277 @@
+.body {
+  position: absolute;
+  left: 0px;
+  top: 65px;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: flex-start;
+  justify-content: center;
+
+  opacity: 1;
+  background: #f9fafb;
+  box-sizing: border-box;
+  border-width: 0px 0px 1px 0px;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+
+.summary {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  gap: 32px;
+}
+
+.info-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-content: flex-start;
+}
+
+.info-title h1 {
+  font-family: Roboto;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 32px;
+  letter-spacing: 0px;
+  color: #111827;
+}
+
+.info-title p {
+  font-family: Roboto;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: #4b5563;
+}
+
+.info-boxlist {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 32px;
+  gap: 0px 10px;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+main h2 {
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 28px;
+  letter-spacing: 0px;
+  color: #000000;
+}
+
+.filter-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  align-content: center;
+  padding: 8px 16px;
+  width: 180px;
+  height: 42px;
+
+  border-radius: 8px;
+  opacity: 1;
+  background: #ffffff;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+}
+
+.filter-button span {
+  font-family: Roboto;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+  text-align: center;
+  letter-spacing: 0px;
+  color: #000000;
+}
+
+.filter-button div {
+  width: 20px;
+  height: 20px;
+}
+
+.filter-button img {
+  width: auto;
+  height: 24px;
+}
+
+.adList {
+  position: relative;
+  width: 1200px;
+  padding: 16px;
+  margin-top: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  opacity: 1;
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.001), rgba(0, 0, 0, 0.001)), #ffffff;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 1184px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
+
+.thead {
+  background: #fff;
+}
+
+.tr {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  opacity: 1;
+  background: #ffffff;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e5e7eb; /* 아래쪽에만 선 */
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.th,
+.td {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 24px;
+  /* 각 칸의 너비는 아래에서 개별적으로 지정 */
+  font-size: 14px;
+  font-weight: 500;
+}
+.th:last-child,
+.td:last-child {
+  border-right: none;
+}
+
+.th {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  height: 48px;
+  background: #ffffff;
+  justify-content: center;
+  align-content: center;
+}
+
+.th-status {
+  padding-left: 36px;
+}
+
+.tbody .tr {
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+.tbody .tr:last-child {
+  border-bottom: none;
+}
+
+.td {
+  font-family: Roboto;
+  font-size: 14px;
+  font-weight: normal;
+  color: #111827;
+  display: flex;
+  align-items: flex-start;
+}
+
+.sub {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* 상태 배지 스타일 예시 */
+.td:nth-of-type(2) span {
+  display: inline-block;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fef9c3;
+  color: #a16207;
+  margin-top: 2px;
+}
+.td span.complete {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* 컬럼별 width 지정 */
+.th,
+.td {
+  box-sizing: border-box;
+}
+.th:nth-child(1),
+.td:nth-child(1) {
+  width: 340px;
+}
+.th:nth-child(2),
+.td:nth-child(2) {
+  width: 220px;
+}
+.th:nth-child(3),
+.td:nth-child(3) {
+  width: 220px;
+}
+.th:nth-child(4),
+.td:nth-child(4) {
+  flex: 1;
+  min-width: 180px;
+} /* 마지막 컬럼은 늘릴 수 있음 */
+
+.list-footer {
+  height: 65px;
+
+  display: flex;
+  justify-content: end;
+}
+
+.page-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-right: 30px;
+}
+
+.page-info button {
+  width: 30px;
+  height: 30px;
+  padding: 8px;
+}
+
+.page-info div div {
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+.page-info img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
