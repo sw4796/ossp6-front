@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
-import AdServingPage from './pages/Adserving/AdServingPage';
 import AdBidPage from './pages/AdBid/AdBidPage';
 import Mainpage from './pages/Mainpage';
 import Signup from './pages/Signup';
@@ -9,6 +8,8 @@ import Myads from './pages/Myads';
 import Local from './pages/Local';
 import AdPost from './pages/AdPost';
 import Bidding from './pages/Bidding';
+import AdServingPage from './pages/AdServingPage';
+import './App.css';
 
 function App() {
   return (
