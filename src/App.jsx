@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AdServingPage from "./pages/AdServingPage";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import AdServingPage from './pages/Adserving/AdServingPage';
+import './App.css';
 
 function App() {
   return (
