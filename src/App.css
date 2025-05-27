@@ -19,3 +19,199 @@ body,
   min-height: 100vh;
   box-sizing: border-box;
 }
+
+html,
+body,
+#root {
+  width: 100vw;
+}
+
+.main-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: auto;
+  border: none;
+  color: black;
+  text-align: center;
+  line-height: 2.5em;
+  border-radius: 5px;
+  font-size: 17px;
+  height: 40px;
+  margin: 0 20px;
+  position: relative;
+  cursor: pointer;
+  transition:
+    color 0.3s ease,
+    border-color ease;
+  text-decoration: none;
+}
+
+.main-label.active {
+  color: #4b89dc;
+}
+
+.main-label.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #4b89dc;
+  border-radius: 1px;
+}
+
+.main-label:hover {
+  color: #4b89dc;
+}
+
+.LoginButton {
+  display: inline-block;
+  width: 80px;
+  padding: 8px;
+  margin-top: 8px;
+  text-align: center;
+  background-color: #4b89dc;
+  color: white;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+.LoginButton:hover {
+  background-color: rgb(180, 210, 250);
+  color: white;
+}
+
+.link-style {
+  text-decoration: none;
+  color: black;
+}
+
+.link-style:hover {
+  color: #4b89dc;
+}
+
+.checkbox-label {
+  /* label */
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 20px;
+  white-space: nowrap;
+}
+
+.hidden-checkbox {
+  /* input */
+  display: none;
+}
+
+.style-checkbox {
+  /* span */
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.hidden-checkbox:checked + .style-checkbox {
+  border-color: #4b89dc;
+  background-color: #4b89dc;
+}
+
+.hidden-checkbox:checked + .style-checkbox::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left;
+  gap: 50px 25px;
+  max-width: 800px;
+}
+
+.rc-slider {
+  margin-top: -10px;
+  margin-bottom: 30px;
+}
+
+.rc-slider-track {
+  background-color: #4b89dc;
+  height: 5px;
+}
+
+.rc-slider-handle {
+  border: 8px solid #4b89dc;
+  background-color: white;
+}
+
+.rc-slider-mark-text {
+  font-size: 14px;
+  white-space: nowrap;
+  color: black;
+}
+
+.status-label {
+  padding: 5px;
+  width: 60px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  display: inline-block;
+}
+
+.status-bidding {
+  color: #854d0e;
+  background-color: #fef9c3; /*입찰중*/
+}
+
+.status-done {
+  color: #991b1b;
+  background-color: #fee2e2; /*입찰완료*/
+}
+
+.status-active {
+  color: #166534;
+  background-color: #dcfce7; /*게재중*/
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0px;
+}
+
+.pagination li a {
+  cursor: pointer;
+  padding: 6px 12px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.pagination li.active a {
+  background-color: #4b89dc;
+  color: white;
+  border: 1px solid #4b89dc;
+}
