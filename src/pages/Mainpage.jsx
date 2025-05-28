@@ -100,8 +100,6 @@ const CheckboxGroupSection = ({ items, selectItem, setItem}) => {
 const Mainpage = () => {
     const [page, setPage] = useState(0);
     const itemsPerPage = 4;
-    const location = useLocation();
-    const isActive = location.pathname === '/';
 
     const [selectRegion, setRegion] = useState(['전체']);
     const [selectadStatus, setadStatus] = useState(['전체']);
