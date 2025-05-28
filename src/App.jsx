@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
-import AdBidPage from './pages/AdBid/AdBidPage';
+import AdBidPage from './pages/AdBidPage';
 import Mainpage from './pages/Mainpage';
 import Signup from './pages/Signup';
 import SignupForm from './pages/SignupForm';
@@ -9,6 +9,7 @@ import Local from './pages/Local';
 import AdPost from './pages/AdPost';
 import Bidding from './pages/Bidding';
 import AdServingPage from './pages/AdServingPage';
+import Adinfo from './pages/Adinfo';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/Local" element={<Local />} />
         <Route path="/ad-serving" element={<AdServingPage />} />
         <Route path="/ad-bid" element={<AdBidPage />} />
+        <Route path="/ad-info" element={<Adinfo />} />
       </Routes>
     </BrowserRouter>
   );

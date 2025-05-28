@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import BidHistoryChart from '../../components/BidHistoryChart';
-import TimeSlotChart from '../../components/TimeSlotChart';
-import EfficiencyChart from '../../components/EfficiencyChart';
-import BidSummaryTable from '../../components/BidSummaryTable';
+import BidHistoryChart from '../components/BidHistoryChart';
+import TimeSlotChart from '../components/TimeSlotChart';
+import EfficiencyChart from '../components/EfficiencyChart';
+import BidSummaryTable from '../components/BidSummaryTable';
 import 'remixicon/fonts/remixicon.css';
 
 const TIME_SLOTS = [
