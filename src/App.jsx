@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
-import AdBidPage from './pages/AdBid/AdBidPage';
+import Header from './components/Header'
+import AdBidPage from './pages/AdBidPage';
 import Mainpage from './pages/Mainpage';
 import Signup from './pages/Signup';
 import SignupForm from './pages/SignupForm';
@@ -14,6 +15,7 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route path="/" element={<Mainpage />} />
         <Route path="/ad/:adName" element={<AdPost />} />
