@@ -14,7 +14,7 @@ export const adServingTableData = [
     date: '2025-05-25 10:00~12:00',
   },
   {
-    place: '건대 입구역 2번 출구',
+    place: '건대입구역 2번출구',
     sub: '로그인 후',
     status: '완료',
     price: '₩ 18,000',

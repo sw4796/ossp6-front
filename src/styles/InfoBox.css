@@ -2,13 +2,30 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
-
   border-radius: 16px;
   opacity: 1;
   background:
     linear-gradient(0deg, rgba(0, 0, 0, 0.001), rgba(0, 0, 0, 0.001)), #ffffff;
-    
+
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  min-width: 220px;
+  min-height: 100px;
+  flex: 1 1 0;
+  box-sizing: border-box;
+}
+
+.info-box--summary {
+  max-width: 100%;
+  max-height: 100%;
+  flex: 1 1 0;
+  min-height: 100px;
+}
+
+.info-boxlist {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
 }
 
 .header {
@@ -27,7 +44,7 @@
 }
 
 .header h3 {
-  font-family: Roboto;
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
@@ -36,7 +53,7 @@
 }
 
 .main {
-  font-family: Roboto;
+  font-family: 'Roboto', sans-serif;
   font-size: 24px;
   font-weight: bold;
   line-height: 32px;
@@ -47,7 +64,7 @@
 }
 
 .info-box span:nth-of-type(2) {
-  font-family: Roboto;
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
   font-weight: normal;
   line-height: 20px;

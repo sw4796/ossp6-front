@@ -221,19 +221,25 @@ export default function AdBidPage() {
                       <div className="text-sm text-gray-500 mb-1">
                         광고판 크기
                       </div>
-                      <div className="font-medium">6m x 4m (가로 x 세로)</div>
+                      <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
+                        6m x 4m (가로 x 세로)
+                      </div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <div className="text-sm text-gray-500 mb-1">
                         일 평균 노출량
                       </div>
-                      <div className="font-medium">약 25,000명</div>
+                      <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
+                        약 25,000명
+                      </div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <div className="text-sm text-gray-500 mb-1">
                         광고 형식
                       </div>
-                      <div className="font-medium">디지털 이미지/비디오</div>
+                      <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
+                        디지털 이미지/비디오
+                      </div>
                     </div>
                   </div>
                   <div className="mb-6">
@@ -273,19 +279,11 @@ export default function AdBidPage() {
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">최소 입찰가</span>
-                        <span className="font-medium">시간당 50,000원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">현재 최고 입찰가</span>
-                        <span className="font-medium text-primary">
-                          시간당 78,000원
-                        </span>
+                        <span className="text-gray-600">평균 입찰가</span>
+                        <span className="font-medium">시간당 63,000원</span>
                       </div>
                     </div>
-                    <button className="w-full bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-button font-medium transition-colors whitespace-nowrap">
-                      입찰 참여하기
-                    </button>
+                    {/* 입찰 참여하기 버튼 제거됨 */}
                   </div>
                 </div>
               </div>

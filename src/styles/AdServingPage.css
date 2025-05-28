@@ -17,6 +17,8 @@
   border-width: 0px 0px 1px 0px;
   border-style: solid;
   border-color: #e5e7eb;
+
+  font-family: 'Roboto', sans-serif;
 }
 
 .summary {
@@ -25,6 +27,7 @@
   flex-direction: column;
   align-content: flex-start;
   gap: 32px;
+  width: 1200px; /* 추가: adList와 동일하게 맞춤 */
 }
 
 .info-title {

@@ -1,42 +1,45 @@
-import React, { useState } from "react";
-import AdInfoHeader from "../components/AdInfoHeader";
-import AdInfoSummary from "../components/AdInfoSummary";
-import AdInfoChartSection from "../components/AdInfoChartSection";
-import AdInfoEffectSection from "../components/AdInfoEffectSection";
-import "remixicon/fonts/remixicon.css";
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import AdInfoHeader from '../components/AdInfoHeader';
+import AdInfoSummary from '../components/AdInfoSummary';
+import AdInfoChartSection from '../components/AdInfoChartSection';
+import AdInfoEffectSection from '../components/AdInfoEffectSection';
+import HourSlotScoreChart from '../components/HourSlotScoreChart';
+import HourSlotApplyChart from '../components/HourSlotApplyChart';
+import 'remixicon/fonts/remixicon.css';
 
 // 더미 데이터 (나중에 API로 대체)
-const summaryData = {
-  place: "강남역 2번 출구 디지털 패널",
-  price: "₩ 2,450,000",
-  period: "2025.05.01 ~ 2025.05.31",
-  status: "진행중",
+const summary_mMckData = {
+  place: '강남역 2번 출구 디지털 패널',
+  price: '₩ 2,450,000',
+  period: '2025.05.01',
+  status: '진행중',
 };
 
-const effectData = [
+const effect_MockData = [
   {
-    label: "예상 도달 인원",
-    value: "248,560명",
-    desc: "광고 기간 동안 예상되는 총 도달 인원",
-    icon: "ri-group-line",
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
+    label: '예상 도달 인원',
+    value: '248,560명',
+    desc: '광고 기간 동안 예상되는 총 도달 인원',
+    icon: 'ri-group-line',
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-600',
   },
   {
-    label: "인당 노출 비용",
-    value: "₩ 9.86",
-    desc: "1인당 평균 광고 노출 비용",
-    icon: "ri-money-dollar-circle-line",
-    iconBg: "bg-green-50",
-    iconColor: "text-green-600",
+    label: '인당 노출 비용',
+    value: '₩ 9.86',
+    desc: '1인당 평균 광고 노출 비용',
+    icon: 'ri-money-dollar-circle-line',
+    iconBg: 'bg-green-50',
+    iconColor: 'text-green-600',
   },
   {
-    label: "효율성 점수",
-    value: "92.4점",
-    desc: "유사 광고 대비 효율성 점수",
-    icon: "ri-bar-chart-grouped-line",
-    iconBg: "bg-purple-50",
-    iconColor: "text-purple-600",
+    label: '효율성 점수',
+    value: '92.4점',
+    desc: '유사 광고 대비 효율성 점수',
+    icon: 'ri-bar-chart-grouped-line',
+    iconBg: 'bg-purple-50',
+    iconColor: 'text-purple-600',
   },
 ];
 
@@ -44,25 +47,35 @@ const effectData = [
 const chartDummy = {
   trafficDataByUnit: {
     day: {
-      x: ["05-19", "05-20", "05-21", "05-22", "05-23", "05-24", "05-25"],
+      x: ['05-19', '05-20', '05-21', '05-22', '05-23', '05-24', '05-25'],
       y: [7200, 6800, 7500, 8100, 7900, 8300, 8742],
     },
     week: {
-      x: ["5월 1주", "5월 2주", "5월 3주", "5월 4주"],
+      x: ['5월 1주', '5월 2주', '5월 3주', '5월 4주'],
       y: [22000, 24500, 26000, 27800],
     },
     month: {
-      x: ["2025-03", "2025-04", "2025-05"],
+      x: ['2025-03', '2025-04', '2025-05'],
       y: [90000, 102000, 110000],
     },
   },
   hours: [
-    "00:00", "02:00", "04:00", "06:00", "08:00", "10:00",
-    "12:00", "14:00", "16:00", "18:00", "20:00", "22:00",
+    '00:00',
+    '02:00',
+    '04:00',
+    '06:00',
+    '08:00',
+    '10:00',
+    '12:00',
+    '14:00',
+    '16:00',
+    '18:00',
+    '20:00',
+    '22:00',
   ],
-  days: ["월", "화", "수", "목", "금", "토", "일"],
-  weeks: ["1주", "2주", "3주", "4주"],
-  months: ["3월", "4월", "5월"],
+  days: ['월', '화', '수', '목', '금', '토', '일'],
+  weeks: ['1주', '2주', '3주', '4주'],
+  months: ['3월', '4월', '5월'],
   exposureDataByUnit: {
     day: (() => {
       const arr = [];
@@ -104,27 +117,149 @@ const chartDummy = {
   },
 };
 
+// 시간대별 노출 점수/응시율 예시 데이터 추가
+const hourSlotScoreData = [
+  { 시간대: '00-02', 점수: 30 },
+  { 시간대: '02-04', 점수: 25 },
+  { 시간대: '04-06', 점수: 20 },
+  { 시간대: '06-08', 점수: 40 },
+  { 시간대: '08-10', 점수: 85 },
+  { 시간대: '10-12', 점수: 70 },
+  { 시간대: '12-14', 점수: 68 },
+  { 시간대: '14-16', 점수: 65 },
+  { 시간대: '16-18', 점수: 75 },
+  { 시간대: '18-20', 점수: 90 },
+  { 시간대: '20-22', 점수: 60 },
+  { 시간대: '22-24', 점수: 40 },
+];
+const hourSlotApplyData = [
+  { 시간대: '00-02', 응시율: 2.1 },
+  { 시간대: '02-04', 응시율: 1.8 },
+  { 시간대: '04-06', 응시율: 1.5 },
+  { 시간대: '06-08', 응시율: 2.5 },
+  { 시간대: '08-10', 응시율: 4.2 },
+  { 시간대: '10-12', 응시율: 3.8 },
+  { 시간대: '12-14', 응시율: 3.5 },
+  { 시간대: '14-16', 응시율: 3.2 },
+  { 시간대: '16-18', 응시율: 4.0 },
+  { 시간대: '18-20', 응시율: 4.5 },
+  { 시간대: '20-22', 응시율: 3.0 },
+  { 시간대: '22-24', 응시율: 2.2 },
+];
+
+function getQueryParams(search) {
+  return Object.fromEntries(new URLSearchParams(search));
+}
+
 function Adinfo() {
-  const [unit, setUnit] = useState("day");
+  const { adslotid, bidid } = useParams();
+  const location = useLocation();
+  const query = getQueryParams(location.search);
+
+  // mode: 'slot'(전체), 'bid'(단일시간), 'group'(그룹)
+  // let mode = 'slot';
+  // if (bidid) mode = 'bid';
+  // else if (query.group === '1') mode = 'group';
+  let mode = 'bid';
+
+  // API 요청 파라미터 준비
+  // slot: /adinfo/:adslotid
+  // bid:  /adinfo/:adslotid/:bidid
+  // group: /adinfo/:adslotid?group=1&adid=xxx
+  const [loading, setLoading] = useState(true);
+  const [summaryData, setSummaryData] = useState(summary_mMckData);
+  const [chartData, setChartData] = useState(null);
+  const [effectData, setEffectData] = useState(effect_MockData);
+  const [unit, setUnit] = useState('day');
+
+  useEffect(() => {
+    setLoading(true);
+    let fetchUrl = '';
+    let params = {};
+    if (mode === 'slot') {
+      fetchUrl = `/api/adinfo/slot/${adslotid}`;
+    } else if (mode === 'bid') {
+      fetchUrl = `/api/adinfo/bid/${bidid}`;
+    } else if (mode === 'group') {
+      fetchUrl = `/api/adinfo/group/${adslotid}`;
+      params = { adid: query.adid };
+    }
+    // 실제 API 요청 부분 (fetch/axios 등)
+    // 아래는 더미 데이터로 대체
+    setTimeout(() => {
+      // mode별로 더미 데이터 분기
+      if (mode === 'slot') {
+        setSummaryData({
+          place: '강남역 2번 출구 디지털 패널',
+          price: '₩ 2,450,000',
+          period: '2025.05.01',
+          status: '진행중',
+        });
+        setChartData(chartDummy);
+        setEffectData(effectData);
+      } else if (mode === 'bid') {
+        setSummaryData({
+          place: '강남역 2번 출구 디지털 패널 (08:00~10:00)',
+          price: '₩ 85,000',
+          period: '2025.05.23',
+          status: '진행중',
+        });
+        setChartData(chartDummy); // 실제로는 해당 시간대 데이터만
+        setEffectData(effectData);
+      } else if (mode === 'group') {
+        setSummaryData({
+          place: '강남역 2번 출구 디지털 패널 (그룹 통계)',
+          price: '₩ 2,000,000',
+          period: '2025.05.01~2025.05.31',
+          status: '진행중',
+        });
+        setChartData(chartDummy); // 실제로는 그룹 데이터만
+        setEffectData(effectData);
+      }
+      setLoading(false);
+    }, 300);
+  }, [adslotid, bidid, query.adid, mode]);
+
+  if (loading) return <div>로딩중...</div>;
+  if (!summaryData) return <div>데이터 없음</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <AdInfoHeader />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-row justify-center">
         <div className="w-full">
-            <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">광고 노출 상세 정보</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            입찰한 광고 자리의 노출 정보와 성과를 확인하세요.
-          </p>
-        </div>
-        <AdInfoSummary data={summaryData} />
-        <AdInfoChartSection
-          chartData={chartDummy}
-          unit={unit}
-          setUnit={setUnit}
-        />
-        <AdInfoEffectSection data={effectData} />
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">
+              광고 노출 상세 정보
+            </h1>
+            <p className="mt-2 text-sm text-gray-600">
+              {mode === 'slot' && '입찰한 광고 자리의 전체 노출 정보입니다.'}
+              {mode === 'bid' && '선택한 시간대의 노출 정보입니다.'}
+              {mode === 'group' && '그룹 통계로 묶인 시간대의 노출 정보입니다.'}
+            </p>
+          </div>
+          {summaryData && <AdInfoSummary data={summaryData} />}
+          {chartData && (
+            <AdInfoChartSection
+              chartData={chartData}
+              unit={unit}
+              setUnit={setUnit}
+            />
+          )}
+          {/* 시간대별 노출 점수/응시율 그래프: 흰색 박스(카드)로 감싸기 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold mb-2">시간대별 응시율</h2>
+              <HourSlotApplyChart data={hourSlotApplyData} />
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold mb-2">시간대별 노출 점수</h2>
+              <HourSlotScoreChart data={hourSlotScoreData} />
+            </div>
+          </div>
+          {/* AdInfoEffectSection가 출력되지 않는 경우: effectData가 null이거나 undefined일 때만 출력 안됨 */}
+          {effectData && <AdInfoEffectSection data={effectData} />}
+          {/* 만약 effectData가 항상 배열이어야 한다면, effectData?.length > 0 && <AdInfoEffectSection ... /> 도 가능 */}
         </div>
       </main>
     </div>
