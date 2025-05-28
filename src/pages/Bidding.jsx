@@ -48,15 +48,6 @@ const Text = styled.div`
 color: gray;
 `;
 
-const Textdetail = styled.div`
- display: flex;
-  align-items: flex-start;
-  font-size: 20px;
-  white-space: nowrap;
-  margin-bottom: 25px;
-color: black;
-`;
-
 const Title1 = styled.div`
  display: flex;
   align-items: flex-start;
