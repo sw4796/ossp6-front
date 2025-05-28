@@ -153,12 +153,12 @@ body,
 }
 
 .rc-slider-track {
-  background-color: #4b89dc;
+  background-color: #4B89DC;
   height: 5px;
 }
 
 .rc-slider-handle {
-  border: 8px solid #4b89dc;
+  border: 8px solid #4B89DC;
   background-color: white;
 }
 
@@ -170,7 +170,7 @@ body,
 
 .status-label {
   padding: 5px;
-  width: 60px;
+  width: 70px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
