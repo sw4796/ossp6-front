@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -23,6 +23,10 @@ function AdRegistration() {
   const [files, setFiles] = useState([]);
   const [termsChecked, setTermsChecked] = useState(false);
   const [highlight, setHighlight] = useState(false);
+  const [address, setAddress] = useState("");
+  const [adDetailAddress, setAdDetailAddress] = useState("");
+  const [latlng, setLatlng] = useState({ lat: "", lng: "" });
+  const [isLoadingLatLng, setIsLoadingLatLng] = useState(false);
   const fileInputRef = useRef();
 
   // Handle file selection (from input or drop)
@@ -90,21 +94,110 @@ function AdRegistration() {
     // 실제 데이터 제출 로직 추가
   };
 
+  // 주소 검색(daum 우편번호 서비스)
+  const handleAddressSearch = () => {
+    if (window.daum && window.daum.Postcode) {
+      new window.daum.Postcode({
+        oncomplete: function (data) {
+          // 도로명주소 또는 지번주소
+          const fullAddr = data.roadAddress || data.jibunAddress;
+          setAddress(fullAddr);
+          getLatLngFromKakao(fullAddr);
+        },
+      }).open();
+    } else {
+      alert("주소 검색 서비스를 불러올 수 없습니다.");
+    }
+  };
+
+  // 카카오 API로 위도/경도 변환
+  const getLatLngFromKakao = async (addr) => {
+    setIsLoadingLatLng(true);
+    try {
+      const REST_API_KEY = "c86abd2312d45ac6800eac3eda21c234"; // 실제 키로 교체
+      const res = await fetch(
+        `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
+          addr
+        )}`,
+        {
+          headers: {
+            Authorization: `KakaoAK ${REST_API_KEY}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (
+        data.documents &&
+        data.documents.length > 0 &&
+        data.documents[0].x &&
+        data.documents[0].y
+      ) {
+        setLatlng({
+          lng: data.documents[0].x,
+          lat: data.documents[0].y,
+        });
+      } else {
+        setLatlng({ lat: "", lng: "" });
+        alert("좌표를 찾을 수 없습니다.");
+      }
+    } catch (e) {
+      setLatlng({ lat: "", lng: "" });
+      alert("좌표 변환에 실패했습니다.");
+    }
+    setIsLoadingLatLng(false);
+  };
+
+  // 카카오맵 스크립트 동적 로드 및 지도 표시
+  useEffect(() => {
+    if (!(latlng.lat && latlng.lng)) return;
+
+    function drawMap() {
+      const container = document.getElementById("kakao-map");
+      if (!container) return;
+      container.innerHTML = "";
+      const options = {
+        center: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
+        level: 3,
+      };
+      const map = new window.kakao.maps.Map(container, options);
+      new window.kakao.maps.Marker({
+        position: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
+        map,
+      });
+    }
+
+    // 이미 스크립트가 있으면 maps.load로 안전하게 drawMap 실행
+    if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
+      window.kakao.maps.load(drawMap);
+      return;
+    }
+
+    // 스크립트가 없으면 동적으로 추가
+    const scriptId = "kakao-map-script";
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6b265bad7c9dec63e7330768e737087&autoload=false";
+      script.async = true;
+      script.onload = () => {
+        if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
+          window.kakao.maps.load(drawMap);
+        }
+      };
+      document.body.appendChild(script);
+    } else {
+      // 이미 추가된 경우, 로드 완료 후 지도 표시
+      const checkLoaded = setInterval(() => {
+        if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
+          clearInterval(checkLoaded);
+          window.kakao.maps.load(drawMap);
+        }
+      }, 100);
+    }
+  }, [latlng.lat, latlng.lng]);
+
   return (
     <div className="min-h-screen bg-[#f9fafb]">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <span className="text-2xl font-['Pacifico'] text-primary">logo</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100">
-              <i className="ri-user-line text-gray-600"></i>
-            </div>
-            <span className="text-sm font-medium text-gray-700">광고주님</span>
-          </div>
-        </div>
-      </header>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow rounded-lg p-6 sm:p-8">
           <div className="mb-8">
@@ -144,6 +237,54 @@ function AdRegistration() {
                 onChange={(e) => setAdDescription(e.target.value.slice(0, 200))}
               />
               <p className="mt-1 text-xs text-gray-500">최대 200자까지 입력 가능합니다.</p>
+            </div>
+            {/* 주소 입력 영역을 카테고리 위로 이동 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                광고 위치(주소) <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border border-solid border-gray-300 rounded text-gray-900 text-sm"
+                  placeholder="주소를 검색해주세요"
+                  value={address}
+                  readOnly
+                />
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-button text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                  onClick={handleAddressSearch}
+                >
+                  주소 검색
+                </button>
+              </div>
+              {/* 상세 주소 입력란 추가 */}
+              <input
+                type="text"
+                className="w-full mt-2 px-4 py-2 border border-solid border-gray-300 rounded text-gray-900 text-sm"
+                placeholder="상세 주소를 입력해주세요 (예: 3층 301호)"
+                value={adDetailAddress}
+                onChange={(e) => setAdDetailAddress(e.target.value.slice(0, 100))}
+              />
+              <p className="mt-1 text-xs text-gray-500">상세 주소는 선택 입력입니다. (최대 100자)</p>
+              {isLoadingLatLng && (
+                <p className="mt-1 text-xs text-gray-500">좌표 변환 중...</p>
+              )}
+              {latlng.lat && latlng.lng && (
+                <>
+                  <p className="mt-1 text-xs text-gray-500">
+                    위도: {latlng.lat}, 경도: {latlng.lng}
+                  </p>
+                  <div className="mt-3 rounded-lg overflow-hidden border border-gray-200" style={{width: "100%", height: "300px"}}>
+                    {/* 카카오맵 지도만 표시 */}
+                    <div
+                      id="kakao-map"
+                      style={{ width: "100%", height: "300px" }}
+                    ></div>
+                  </div>
+                </>
+              )}
             </div>
             <div>
               <label htmlFor="adCategory" className="block text-sm font-medium text-gray-700 mb-1">
@@ -324,6 +465,11 @@ function AdRegistration() {
         href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
         rel="stylesheet"
       />
+      {/* Daum 우편번호 서비스 스크립트 */}
+      <script
+        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+        async
+      ></script>
     </div>
   );
 }
