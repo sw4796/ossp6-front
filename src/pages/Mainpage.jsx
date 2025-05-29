@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link, useLocation } from 'react-router-dom';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Slider from 'rc-slider';
@@ -100,8 +100,6 @@ const CheckboxGroupSection = ({ items, selectItem, setItem}) => {
 const Mainpage = () => {
     const [page, setPage] = useState(0);
     const itemsPerPage = 4;
-    const location = useLocation();
-    const isActive = location.pathname === '/';
 
     const [selectRegion, setRegion] = useState(['전체']);
     const [selectadStatus, setadStatus] = useState(['전체']);
@@ -132,19 +130,6 @@ const Mainpage = () => {
   
   return (
     <>
-    <header style={{top: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-      padding: '10px', borderBottom: '2px solid #ddd', marginBottom: '50px'}}>
-                  <Link to="/">
-                  <img src="/logo.png" alt="logo" style={{ height: '30px' }} />
-                  </Link>
-                  <div style={{ display: 'flex', gap: '20px' }}>  
-              <Link to="/" className={`main-label ${isActive ? 'active' : ''}`}>광고 입찰</Link>
-              <Link to="/Myads" className="main-label">내 광고</Link>
-              <Link to="/Local" className="main-label">지역 시세 보기</Link>
-              </div>
-              <Link to="/Signup" className="LoginButton">Log-in</Link>
-        </header>
-
         <Wrapper>
         <Container>
             <Title>지역을 선택하세요.</Title>

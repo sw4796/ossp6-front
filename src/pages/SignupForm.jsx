@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../App.css';
 
 const LoginButton = styled(Link)`
@@ -75,23 +75,9 @@ box-sizing: border-box;
 `;
 
 const SignupForm = () => {
-      const location = useLocation();
-    const isActive = location.pathname === '/';
+
   return (
     <>
-    <header style={{ position:'fixed', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', borderBottom: '2px solid #ddd'}}>
-                  <Link to="/">
-                  <img src="/logo.png" alt="logo" style={{ height: '30px' }} />
-                  </Link>
-               <div style={{ display: 'flex', gap: '20px' }}>
-               <Link to="/" className={`main-label ${isActive ? 'active' : ''}`}>광고 입찰</Link>
-              <Link to="/" className={`main-label ${isActive ? 'active' : ''}`}>내 광고</Link>
-              <Link to="/" className={`main-label ${isActive ? 'active' : ''}`}>지역 시세 보기</Link>
-              </div>
-              <LoginButton to="/Signup">Log-in</LoginButton>
-
-        </header>
-
             {/* 정보 입력란 (Form) */}
             <Container>
               <Title style={{display: 'flex', marginTop: 10, marginBottom: 20, borderBottom: '2px solid #ddd'}}>정보 입력</Title>

@@ -1,6 +1,6 @@
 import {useParams} from 'react-router-dom';
 import styled from "styled-components";
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {useState} from 'react';
 import '../App.css';
 import ads from '../data/ads';
@@ -48,15 +48,6 @@ const Text = styled.div`
 color: gray;
 `;
 
-const Textdetail = styled.div`
- display: flex;
-  align-items: flex-start;
-  font-size: 20px;
-  white-space: nowrap;
-  margin-bottom: 25px;
-color: black;
-`;
-
 const Title1 = styled.div`
  display: flex;
   align-items: flex-start;
@@ -83,6 +74,7 @@ text-decoration: none;
   cursor: pointer;
 &:hover{
 background-color: rgb(180, 210, 250);
+color: white;
 }
 `;
 
@@ -133,18 +125,6 @@ if(!ad) return <div>광고 정보를 찾을 수 없습니다.</div>;
 
 return(
      <>
-        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-            padding: '10px', borderBottom: '2px solid #ddd', marginBottom: '50px'}}>
-                      <Link to="/">
-                      <img src="/logo.png" alt="logo" style={{ height: '30px' }} />
-                      </Link>
-                      <div style={{ display: 'flex', gap: '20px' }}>   
-                  <Link to="/" className="main-label">광고 입찰</Link>
-                  <Link to="/Myads" className="main-label">내 광고</Link>
-                  <Link to="/Local" className="main-label">지역 시세 보기</Link>
-                  </div>
-                  <Link to="/Signup" className="LoginButton">Log-in</Link>
-            </header>
             <Wrapper>
             <Container>
                 <img src="/logo512.png" alt="logo" style={{ height: '300px', marginBottom: '20px'}} />
