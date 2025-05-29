@@ -10,6 +10,7 @@ import AdPost from './pages/AdPost';
 import Bidding from './pages/Bidding';
 import AdServingPage from './pages/AdServingPage';
 import Adinfo from './pages/Adinfo';
+import AdRegistration from './pages/AdRegistration';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/ad-serving" element={<AdServingPage />} />
         <Route path="/ad-bid" element={<AdBidPage />} />
         <Route path="/ad-info" element={<Adinfo />} />
+        <Route path="/ad-registration" element={<AdRegistration />} />
       </Routes>
     </BrowserRouter>
   );
