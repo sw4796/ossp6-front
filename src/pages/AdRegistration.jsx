@@ -1,32 +1,32 @@
-import React, { useRef, useState, useEffect } from "react";
-import Header from "../components/Header";
+import React, { useRef, useState, useEffect } from 'react';
+import Header from '../components/Header';
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const categories = [
-  { value: "", label: "카테고리를 선택해주세요", disabled: true },
-  { value: "fashion", label: "패션/의류" },
-  { value: "beauty", label: "뷰티/화장품" },
-  { value: "food", label: "식품/음료" },
-  { value: "home", label: "가구/인테리어" },
-  { value: "digital", label: "디지털/가전" },
-  { value: "travel", label: "여행/레저" },
-  { value: "education", label: "교육/학습" },
-  { value: "finance", label: "금융/보험" },
-  { value: "etc", label: "기타" },
+  { value: '', label: '카테고리를 선택해주세요', disabled: true },
+  { value: 'fashion', label: '패션/의류' },
+  { value: 'beauty', label: '뷰티/화장품' },
+  { value: 'food', label: '식품/음료' },
+  { value: 'home', label: '가구/인테리어' },
+  { value: 'digital', label: '디지털/가전' },
+  { value: 'travel', label: '여행/레저' },
+  { value: 'education', label: '교육/학습' },
+  { value: 'finance', label: '금융/보험' },
+  { value: 'etc', label: '기타' },
 ];
 
 function AdRegistration() {
-  const [adName, setAdName] = useState("");
-  const [adDescription, setAdDescription] = useState("");
-  const [adCategory, setAdCategory] = useState("");
+  const [adName, setAdName] = useState('');
+  const [adDescription, setAdDescription] = useState('');
+  const [adCategory, setAdCategory] = useState('');
   const [files, setFiles] = useState([]);
   const [termsChecked, setTermsChecked] = useState(false);
   const [highlight, setHighlight] = useState(false);
-  const [address, setAddress] = useState("");
-  const [adDetailAddress, setAdDetailAddress] = useState("");
-  const [latlng, setLatlng] = useState({ lat: "", lng: "" });
+  const [address, setAddress] = useState('');
+  const [adDetailAddress, setAdDetailAddress] = useState('');
+  const [latlng, setLatlng] = useState({ lat: '', lng: '' });
   const [isLoadingLatLng, setIsLoadingLatLng] = useState(false);
   const fileInputRef = useRef();
 
@@ -36,15 +36,15 @@ function AdRegistration() {
     // Filter invalid files
     newFiles = newFiles.filter((file) => {
       if (files.length >= MAX_FILES) {
-        alert("최대 5개의 파일만 업로드 가능합니다.");
+        alert('최대 5개의 파일만 업로드 가능합니다.');
         return false;
       }
       if (file.size > MAX_FILE_SIZE) {
-        alert("파일 크기는 10MB를 초과할 수 없습니다.");
+        alert('파일 크기는 10MB를 초과할 수 없습니다.');
         return false;
       }
-      if (!file.type.match("image/*") && !file.type.match("video/*")) {
-        alert("이미지 또는 비디오 파일만 업로드 가능합니다.");
+      if (!file.type.match('image/*') && !file.type.match('video/*')) {
+        alert('이미지 또는 비디오 파일만 업로드 가능합니다.');
         return false;
       }
       // Prevent duplicates by name+size
@@ -76,22 +76,22 @@ function AdRegistration() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!adName.trim()) {
-      alert("광고 이름을 입력해주세요.");
+      alert('광고 이름을 입력해주세요.');
       return;
     }
     if (!adCategory) {
-      alert("카테고리를 선택해주세요.");
+      alert('카테고리를 선택해주세요.');
       return;
     }
     if (files.length === 0) {
-      alert("최소 1개 이상의 미디어 파일을 업로드해주세요.");
+      alert('최소 1개 이상의 미디어 파일을 업로드해주세요.');
       return;
     }
     if (!termsChecked) {
-      alert("이용약관에 동의해주세요.");
+      alert('이용약관에 동의해주세요.');
       return;
     }
-    alert("광고가 성공적으로 등록되었습니다!");
+    alert('광고가 성공적으로 등록되었습니다!');
     // 실제 데이터 제출 로직 추가
   };
 
@@ -107,7 +107,7 @@ function AdRegistration() {
         },
       }).open();
     } else {
-      alert("주소 검색 서비스를 불러올 수 없습니다.");
+      alert('주소 검색 서비스를 불러올 수 없습니다.');
     }
   };
 
@@ -115,7 +115,7 @@ function AdRegistration() {
   const getLatLngFromKakao = async (addr) => {
     setIsLoadingLatLng(true);
     try {
-      const REST_API_KEY = "c86abd2312d45ac6800eac3eda21c234"; // 실제 키로 교체
+      const REST_API_KEY = 'c86abd2312d45ac6800eac3eda21c234'; // 실제 키로 교체
       const res = await fetch(
         `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
           addr
@@ -138,12 +138,12 @@ function AdRegistration() {
           lat: data.documents[0].y,
         });
       } else {
-        setLatlng({ lat: "", lng: "" });
-        alert("좌표를 찾을 수 없습니다.");
+        setLatlng({ lat: '', lng: '' });
+        alert('좌표를 찾을 수 없습니다.');
       }
     } catch (e) {
-      setLatlng({ lat: "", lng: "" });
-      alert("좌표 변환에 실패했습니다.");
+      setLatlng({ lat: '', lng: '' });
+      alert('좌표 변환에 실패했습니다.');
     }
     setIsLoadingLatLng(false);
   };
@@ -153,9 +153,9 @@ function AdRegistration() {
     if (!(latlng.lat && latlng.lng)) return;
 
     function drawMap() {
-      const container = document.getElementById("kakao-map");
+      const container = document.getElementById('kakao-map');
       if (!container) return;
-      container.innerHTML = "";
+      container.innerHTML = '';
       const options = {
         center: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
         level: 3,
@@ -174,11 +174,12 @@ function AdRegistration() {
     }
 
     // 스크립트가 없으면 동적으로 추가
-    const scriptId = "kakao-map-script";
+    const scriptId = 'kakao-map-script';
     if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script");
+      const script = document.createElement('script');
       script.id = scriptId;
-      script.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6b265bad7c9dec63e7330768e737087&autoload=false";
+      script.src =
+        'https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6b265bad7c9dec63e7330768e737087&autoload=false';
       script.async = true;
       script.onload = () => {
         if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
@@ -199,29 +200,29 @@ function AdRegistration() {
 
   // 지역명 매핑 테이블
   const regionMap = [
-    { keyword: "서울", region: "서울" },
-    { keyword: "경기", region: "경기" },
-    { keyword: "광주", region: "광주" },
-    { keyword: "전북", region: "전북" },
-    { keyword: "경남", region: "경남" },
-    { keyword: "경북", region: "경북" },
-    { keyword: "충남", region: "충남" },
-    { keyword: "대전", region: "대전" },
-    { keyword: "부산", region: "부산" },
-    { keyword: "충북", region: "충북" },
-    { keyword: "대구", region: "대구" },
-    { keyword: "전남", region: "전남" },
+    { keyword: '서울', region: '서울' },
+    { keyword: '경기', region: '경기' },
+    { keyword: '광주', region: '광주' },
+    { keyword: '전북', region: '전북' },
+    { keyword: '경남', region: '경남' },
+    { keyword: '경북', region: '경북' },
+    { keyword: '충남', region: '충남' },
+    { keyword: '대전', region: '대전' },
+    { keyword: '부산', region: '부산' },
+    { keyword: '충북', region: '충북' },
+    { keyword: '대구', region: '대구' },
+    { keyword: '전남', region: '전남' },
   ];
 
   // 주소에서 지역 추출 함수
   function extractRegion(address) {
-    if (!address) return "";
+    if (!address) return '';
     for (const { keyword, region } of regionMap) {
       if (address.startsWith(keyword)) return region;
       // 혹시 "서울특별시", "경기도" 등 전체명도 대응
       if (address.includes(keyword)) return region;
     }
-    return "";
+    return '';
   }
 
   return (
@@ -237,7 +238,10 @@ function AdRegistration() {
           </div>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="adName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="adName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 광고 이름 <span className="text-red-500">*</span>
               </label>
               <input
@@ -250,10 +254,15 @@ function AdRegistration() {
                 value={adName}
                 onChange={(e) => setAdName(e.target.value.slice(0, 50))}
               />
-              <p className="mt-1 text-xs text-gray-500">최대 50자까지 입력 가능합니다.</p>
+              <p className="mt-1 text-xs text-gray-500">
+                최대 50자까지 입력 가능합니다.
+              </p>
             </div>
             <div>
-              <label htmlFor="adDescription" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="adDescription"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 광고 설명
               </label>
               <textarea
@@ -265,58 +274,15 @@ function AdRegistration() {
                 value={adDescription}
                 onChange={(e) => setAdDescription(e.target.value.slice(0, 200))}
               />
-              <p className="mt-1 text-xs text-gray-500">최대 200자까지 입력 가능합니다.</p>
-            </div>
-            {/* 주소 입력 영역을 카테고리 위로 이동 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                광고 위치(주소) <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-solid border-gray-300 rounded text-gray-900 text-sm"
-                  placeholder="주소를 검색해주세요"
-                  value={address}
-                  readOnly
-                />
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-white border border-gray-300 rounded-button text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
-                  onClick={handleAddressSearch}
-                >
-                  주소 검색
-                </button>
-              </div>
-              {/* 상세 주소 입력란 추가 */}
-              <input
-                type="text"
-                className="w-full mt-2 px-4 py-2 border border-solid border-gray-300 rounded text-gray-900 text-sm"
-                placeholder="상세 주소를 입력해주세요 (예: 3층 301호)"
-                value={adDetailAddress}
-                onChange={(e) => setAdDetailAddress(e.target.value.slice(0, 100))}
-              />
-              <p className="mt-1 text-xs text-gray-500">상세 주소는 선택 입력입니다. (최대 100자)</p>
-              {isLoadingLatLng && (
-                <p className="mt-1 text-xs text-gray-500">좌표 변환 중...</p>
-              )}
-              {latlng.lat && latlng.lng && (
-                <>
-                  <p className="mt-1 text-xs text-gray-500">
-                    위도: {latlng.lat}, 경도: {latlng.lng}
-                  </p>
-                  <div className="mt-3 rounded-lg overflow-hidden border border-gray-200" style={{width: "100%", height: "300px"}}>
-                    {/* 카카오맵 지도만 표시 */}
-                    <div
-                      id="kakao-map"
-                      style={{ width: "100%", height: "300px" }}
-                    ></div>
-                  </div>
-                </>
-              )}
+              <p className="mt-1 text-xs text-gray-500">
+                최대 200자까지 입력 가능합니다.
+              </p>
             </div>
             <div>
-              <label htmlFor="adCategory" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="adCategory"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 카테고리 <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -329,7 +295,11 @@ function AdRegistration() {
                   onChange={(e) => setAdCategory(e.target.value)}
                 >
                   {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value} disabled={cat.disabled}>
+                    <option
+                      key={cat.value}
+                      value={cat.value}
+                      disabled={cat.disabled}
+                    >
                       {cat.label}
                     </option>
                   ))}
@@ -344,16 +314,27 @@ function AdRegistration() {
                 미디어 업로드 <span className="text-red-500">*</span>
               </label>
               <div
-                className={`file-drop-area p-8 text-center ${highlight ? "highlight" : ""}`}
-                onDragEnter={(e) => { preventDefaults(e); setHighlight(true); }}
-                onDragOver={(e) => { preventDefaults(e); setHighlight(true); }}
-                onDragLeave={(e) => { preventDefaults(e); setHighlight(false); }}
+                className={`file-drop-area p-8 text-center ${highlight ? 'highlight' : ''}`}
+                onDragEnter={(e) => {
+                  preventDefaults(e);
+                  setHighlight(true);
+                }}
+                onDragOver={(e) => {
+                  preventDefaults(e);
+                  setHighlight(true);
+                }}
+                onDragLeave={(e) => {
+                  preventDefaults(e);
+                  setHighlight(false);
+                }}
                 onDrop={onDrop}
               >
                 <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-gray-100">
                   <i className="ri-upload-cloud-line text-2xl text-gray-500"></i>
                 </div>
-                <p className="text-sm text-gray-700 mb-2">파일을 이곳에 끌어다 놓거나</p>
+                <p className="text-sm text-gray-700 mb-2">
+                  파일을 이곳에 끌어다 놓거나
+                </p>
                 <button
                   type="button"
                   className="px-4 py-2 bg-white border border-gray-300 rounded-button text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
@@ -367,10 +348,10 @@ function AdRegistration() {
                   className="file-input"
                   accept="image/*,video/*"
                   multiple
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                   onChange={(e) => {
                     handleFiles(e.target.files);
-                    e.target.value = "";
+                    e.target.value = '';
                   }}
                 />
                 <p className="mt-2 text-xs text-gray-500">
@@ -381,11 +362,23 @@ function AdRegistration() {
                 {files.map((file, idx) => {
                   const url = URL.createObjectURL(file);
                   return (
-                    <div className="preview-item relative w-[120px] h-[120px] rounded overflow-hidden shadow" key={idx}>
-                      {file.type.startsWith("image/") ? (
-                        <img src={url} alt={file.name} className="w-full h-full object-cover object-top" />
+                    <div
+                      className="preview-item relative w-[120px] h-[120px] rounded overflow-hidden shadow"
+                      key={idx}
+                    >
+                      {file.type.startsWith('image/') ? (
+                        <img
+                          src={url}
+                          alt={file.name}
+                          className="w-full h-full object-cover object-top"
+                        />
                       ) : (
-                        <video src={url} muted controls className="w-full h-full object-cover object-top" />
+                        <video
+                          src={url}
+                          muted
+                          controls
+                          className="w-full h-full object-cover object-top"
+                        />
                       )}
                       <div
                         className="remove-btn absolute right-1 top-1 bg-white/90 rounded-full w-6 h-6 flex items-center justify-center cursor-pointer text-red-500"
@@ -407,7 +400,7 @@ function AdRegistration() {
                 onChange={(e) => setTermsChecked(e.target.checked)}
               />
               <label htmlFor="termsCheck" className="text-sm text-gray-700">
-                광고 정책 및{" "}
+                광고 정책 및{' '}
                 <a href="#" className="text-primary hover:underline">
                   이용약관
                 </a>

@@ -12,6 +12,7 @@ import Bidding from './pages/Bidding';
 import AdServingPage from './pages/AdServingPage';
 import Adinfo from './pages/Adinfo';
 import AdRegistration from './pages/AdRegistration';
+import AdSlotRegistration from './pages/AdSlotRegistration';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/ad-bid" element={<AdBidPage />} />
         <Route path="/ad-info" element={<Adinfo />} />
         <Route path="/ad-registration" element={<AdRegistration />} />
+        <Route path="/ad-slot-registration" element={<AdSlotRegistration />} />
       </Routes>
     </BrowserRouter>
   );
