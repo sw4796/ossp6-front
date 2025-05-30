@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
 import {useState} from 'react';
+import Header from "../components/Header";
 import '../App.css';
 import myads from '../data/myads';
 import ReactPaginate from 'react-paginate';
@@ -121,6 +122,7 @@ function Myads() {
 
   return (
     <>
+        <Header />
         <Wrapper>
             <RowWrapper>
             <Container1>

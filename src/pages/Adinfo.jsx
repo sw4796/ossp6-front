@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import AdInfoHeader from '../components/AdInfoHeader';
+import Header from '../components/Header';
 import AdInfoSummary from '../components/AdInfoSummary';
 import AdInfoChartSection from '../components/AdInfoChartSection';
 import AdInfoEffectSection from '../components/AdInfoEffectSection';
@@ -225,7 +225,7 @@ function Adinfo() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdInfoHeader />
+      <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-row justify-center">
         <div className="w-full">
           <div className="mb-8">

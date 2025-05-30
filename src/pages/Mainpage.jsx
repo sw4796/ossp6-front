@@ -8,6 +8,7 @@ import 'rc-slider/assets/index.css';
 import ReactPaginate from 'react-paginate';
 import '../App.css';
 import ads from '../data/ads';
+import Header from "../components/Header";
 
 const region = ['서울', '경기', '광주', '전북', '경남', '경북', '충남', '대전', '부산', '충북', '대구', '전남', '전체'];
 const adStatus = ['전체', '입찰중', '게재중', '입찰완료'];
@@ -130,6 +131,7 @@ const Mainpage = () => {
   
   return (
     <>
+        <Header />
         <Wrapper>
         <Container>
             <Title>지역을 선택하세요.</Title>

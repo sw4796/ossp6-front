@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import Header from "../components/Header";
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -196,8 +197,36 @@ function AdRegistration() {
     }
   }, [latlng.lat, latlng.lng]);
 
+  // 지역명 매핑 테이블
+  const regionMap = [
+    { keyword: "서울", region: "서울" },
+    { keyword: "경기", region: "경기" },
+    { keyword: "광주", region: "광주" },
+    { keyword: "전북", region: "전북" },
+    { keyword: "경남", region: "경남" },
+    { keyword: "경북", region: "경북" },
+    { keyword: "충남", region: "충남" },
+    { keyword: "대전", region: "대전" },
+    { keyword: "부산", region: "부산" },
+    { keyword: "충북", region: "충북" },
+    { keyword: "대구", region: "대구" },
+    { keyword: "전남", region: "전남" },
+  ];
+
+  // 주소에서 지역 추출 함수
+  function extractRegion(address) {
+    if (!address) return "";
+    for (const { keyword, region } of regionMap) {
+      if (address.startsWith(keyword)) return region;
+      // 혹시 "서울특별시", "경기도" 등 전체명도 대응
+      if (address.includes(keyword)) return region;
+    }
+    return "";
+  }
+
   return (
     <div className="min-h-screen bg-[#f9fafb]">
+      <Header />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow rounded-lg p-6 sm:p-8">
           <div className="mb-8">

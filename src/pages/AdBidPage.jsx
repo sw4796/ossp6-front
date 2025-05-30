@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '../components/Header';
 import BidHistoryChart from '../components/BidHistoryChart';
 import TimeSlotChart from '../components/TimeSlotChart';
 import EfficiencyChart from '../components/EfficiencyChart';
@@ -162,33 +163,7 @@ export default function AdBidPage() {
 
   return (
     <div className="font-['Noto Sans KR'] bg-gray-50 min-h-screen flex flex-col w-full">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b w-full flex justify-center">
-        <div className="max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center">
-            <span className="text-2xl font-['Pacifico'] text-primary">
-              logo
-            </span>
-            <span className="ml-2 text-lg font-semibold">광고 입찰 시스템</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <div className="relative">
-              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100">
-                <i className="ri-notification-3-line text-gray-600"></i>
-              </div>
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">
-                3
-              </span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <i className="ri-user-line text-gray-600"></i>
-              </div>
-              <span className="ml-2 font-medium">김민준</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
       {/* Main */}
       <main className="flex flex-row justify-center w-full">
         <div className="max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 py-6 md:py-8">
