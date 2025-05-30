@@ -1,95 +1,135 @@
 import React from 'react';
-import { ResponsiveLine } from '@nivo/line';
+import ReactECharts from 'echarts-for-react';
 
 function BidHistoryChart({ data }) {
-  const allY = data.flatMap((serie) => serie.data.map((d) => d.y));
-  const minY = Math.min(...allY);
-  const yMin = Math.max(0, minY - 5000);
+  // x축 라벨
+  const xLabels = data[0]?.data.map((d) => d.x);
+
+  // 각 시리즈 데이터 변환
+  const series = [
+    {
+      name: '평균 입찰가',
+      type: 'line',
+      smooth: true,
+      data:
+        data.find((d) => d.id === '평균 입찰가')?.data.map((d) => d.y) || [],
+      lineStyle: {
+        width: 3,
+        color: 'rgba(87, 181, 231, 1)',
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(87, 181, 231, 0.2)' },
+            { offset: 1, color: 'rgba(87, 181, 231, 0.05)' },
+          ],
+        },
+      },
+      symbol: 'circle',
+      itemStyle: {
+        color: 'rgba(87, 181, 231, 1)',
+        borderColor: '#fff',
+        borderWidth: 2,
+      },
+    },
+    {
+      name: '최고 입찰가',
+      type: 'line',
+      smooth: true,
+      data:
+        data.find((d) => d.id === '최고 입찰가')?.data.map((d) => d.y) || [],
+      lineStyle: {
+        width: 3,
+        color: 'rgba(251, 191, 114, 1)',
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(251, 191, 114, 0.2)' },
+            { offset: 1, color: 'rgba(251, 191, 114, 0.05)' },
+          ],
+        },
+      },
+      symbol: 'circle',
+      itemStyle: {
+        color: 'rgba(251, 191, 114, 1)',
+        borderColor: '#fff',
+        borderWidth: 2,
+      },
+    },
+  ];
+
+  const option = {
+    animation: false,
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255,255,255,0.8)',
+      borderColor: '#e5e7eb',
+      borderWidth: 1,
+      textStyle: { color: '#1f2937', fontSize: 13 },
+      formatter: (params) =>
+        params
+          .map(
+            (p) =>
+              `<b>${p.seriesName}</b><br/>${p.axisValue}: ${p.data.toLocaleString()}원`
+          )
+          .join('<br/>'),
+      extraCssText: 'box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:8px;',
+    },
+    legend: {
+      data: ['평균 입찰가', '최고 입찰가'],
+      bottom: 10,
+      itemWidth: 12,
+      itemHeight: 12,
+      icon: 'circle',
+      textStyle: {
+        fontWeight: 500,
+        fontSize: 14,
+        fontFamily: 'Roboto, sans-serif',
+      },
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '3%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xLabels,
+      axisLabel: { fontSize: 13, fontFamily: 'Roboto, sans-serif' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '{value}원',
+        fontSize: 13,
+        fontFamily: 'Roboto, sans-serif',
+      },
+      min: (value) => Math.max(0, value.min - 5000),
+    },
+    series,
+  };
 
   return (
-    <div style={{ height: 320 }}>
-      <ResponsiveLine
-        data={data}
-        margin={{ top: 20, right: 30, bottom: 50, left: 60 }}
-        xScale={{ type: 'point' }}
-        yScale={{
-          type: 'linear',
-          min: yMin,
-          max: 'auto',
-          stacked: false,
-          reverse: false,
-        }}
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-          orient: 'bottom',
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: '',
-          legendOffset: 36,
-          legendPosition: 'middle',
-        }}
-        axisLeft={{
-          orient: 'left',
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: '',
-          legendOffset: -40,
-          legendPosition: 'middle',
-          format: (v) => `${v.toLocaleString()}원`,
-        }}
-        colors={['#57b5e7', '#fbbf72']}
-        pointSize={8}
-        pointColor={{ theme: 'background' }}
-        pointBorderWidth={2}
-        pointBorderColor={{ from: 'serieColor' }}
-        enableArea={true}
-        areaOpacity={0.15}
-        areaBaselineValue={yMin}
-        useMesh={true}
-        legends={[
-          {
-            anchor: 'bottom',
-            direction: 'row',
-            justify: false,
-            translateY: 50, // 라벨을 더 아래로
-            itemWidth: 100,
-            itemHeight: 20,
-            symbolSize: 12,
-            symbolShape: 'circle',
-          },
-        ]}
-        tooltip={({ point }) => (
-          <span
-            style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              padding: '6px 8px',
-              color: '#1f2937',
-              fontSize: 13,
-              display: 'inline-flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              width: 'auto',
-              minWidth: 0,
-              maxWidth: 'none',
-              whiteSpace: 'nowrap',
-              height: 'fit-content', // 세로 크기를 내용에 맞게
-              lineHeight: 1.8, // 줄 간격을 조금 더 넓게
-              boxSizing: 'border-box',
-            }}
-          >
-            <b>{point.serieId}</b>
-            <span>
-              {point.data.xFormatted}: {point.data.yFormatted.toLocaleString()}
-              원
-            </span>
-          </span>
-        )}
-      />
-    </div>
+    <ReactECharts
+      option={option}
+      style={{ height: 320, width: '100%' }}
+      notMerge={true}
+      lazyUpdate={true}
+    />
   );
 }
 

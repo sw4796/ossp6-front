@@ -1,14 +1,9 @@
 import React from 'react';
-import '../styles/InfoBox.css'; // 스타일 분리형
+import '../styles/InfoBox.css';
 
-function InfoBox({ imgurl, title, maincontent, subcontent, w, h }) {
-  const boxStyle = {
-    width: typeof w === 'number' ? `${w}px` : w,
-    height: typeof h === 'number' ? `${h}px` : h,
-  };
-
+function InfoBox({ imgurl, title, maincontent, subcontent }) {
   return (
-    <div className="info-box" style={boxStyle}>
+    <div className="info-box">
       <div className="header">
         <img src={imgurl} alt="img" />
         <h3>{title}</h3>

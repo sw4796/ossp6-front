@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ResponsiveBar } from '@nivo/bar';
+import ReactECharts from 'echarts-for-react';
 
 function TimeSlotChart({ data }) {
-  // 차트 컨테이너의 실제 가로 길이 기준으로 라벨 축약
   const chartRef = useRef(null);
   const [isNarrow, setIsNarrow] = useState(false);
 
@@ -22,46 +21,65 @@ function TimeSlotChart({ data }) {
     return label.split('-')[0];
   };
 
+  const xLabels = data.map((d) => getShortLabel(d.시간대));
+  const barData = data.map((d) => ({
+    value: d.평균입찰가,
+    itemStyle: { color: d.color },
+  }));
+
+  const option = {
+    animation: false,
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255,255,255,0.8)',
+      borderColor: '#e5e7eb',
+      textStyle: { color: '#1f2937', fontSize: 13 },
+      formatter: (params) =>
+        params
+          .map(
+            (p) =>
+              `<b>${p.axisValue}시</b><br/>${p.data.value.toLocaleString()}원`
+          )
+          .join('<br/>'),
+      extraCssText: 'box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:8px;',
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '3%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: xLabels,
+      axisLabel: { fontSize: 13, fontFamily: 'Roboto, sans-serif' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '{value}원',
+        fontSize: 13,
+        fontFamily: 'Roboto, sans-serif',
+      },
+    },
+    series: [
+      {
+        type: 'bar',
+        data: barData,
+        barWidth: '60%',
+        itemStyle: { borderRadius: 4 },
+      },
+    ],
+  };
+
   return (
     <div ref={chartRef} style={{ height: 320, width: '100%' }}>
-      <ResponsiveBar
-        data={data}
-        keys={['평균입찰가']}
-        indexBy="시간대"
-        margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
-        padding={0.3}
-        colors={({ data }) => data.color}
-        axisBottom={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          format: getShortLabel,
-        }}
-        axisLeft={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          format: (v) => `${v.toLocaleString()}원`,
-        }}
-        enableLabel={false}
-        tooltip={({ indexValue, value }) => (
-          <div
-            style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              padding: '6px 24px',
-              color: '#1f2937',
-              fontSize: 13,
-              minWidth: 120,
-              maxWidth: 220,
-            }}
-          >
-            <b>{indexValue}시</b>
-            <br />
-            {value.toLocaleString()}원
-          </div>
-        )}
-        borderRadius={4}
+      <ReactECharts
+        option={option}
+        style={{ height: 320, width: '100%' }}
+        notMerge={true}
+        lazyUpdate={true}
       />
     </div>
   );

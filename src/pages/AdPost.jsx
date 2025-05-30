@@ -1,6 +1,7 @@
 import {useParams} from 'react-router-dom';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
+import Header from "../components/Header";
 import '../App.css';
 import ads from '../data/ads';
 
@@ -80,6 +81,7 @@ if(!ad) return <div>광고 정보를 찾을 수 없습니다.</div>;
 
 return(
      <>
+            <Header />
             <Wrapper>
             <Container>
                 <img src="/logo512.png" alt="logo" style={{ height: '300px', marginBottom: '20px'}} />
