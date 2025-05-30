@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import AdInfoSummary from '../components/AdInfoSummary';
 import AdInfoChartSection from '../components/AdInfoChartSection';
@@ -7,6 +7,7 @@ import AdInfoEffectSection from '../components/AdInfoEffectSection';
 import HourSlotScoreChart from '../components/HourSlotScoreChart';
 import HourSlotApplyChart from '../components/HourSlotApplyChart';
 import 'remixicon/fonts/remixicon.css';
+import adslotInfo from '../data/adslotInfo';
 
 // 더미 데이터 (나중에 API로 대체)
 const summary_mMckData = {
@@ -147,78 +148,42 @@ const hourSlotApplyData = [
   { 시간대: '22-24', 응시율: 2.2 },
 ];
 
-function getQueryParams(search) {
-  return Object.fromEntries(new URLSearchParams(search));
-}
-
 function Adinfo() {
-  const { adslotid, bidid } = useParams();
-  const location = useLocation();
-  const query = getQueryParams(location.search);
+  const { adslotid } = useParams();
+  const navigate = useNavigate();
 
-  // mode: 'slot'(전체), 'bid'(단일시간), 'group'(그룹)
-  // let mode = 'slot';
-  // if (bidid) mode = 'bid';
-  // else if (query.group === '1') mode = 'group';
-  let mode = 'bid';
+  // 광고자리 상세 데이터 가져오기
+  const slotData = adslotInfo[adslotid];
 
-  // API 요청 파라미터 준비
-  // slot: /adinfo/:adslotid
-  // bid:  /adinfo/:adslotid/:bidid
-  // group: /adinfo/:adslotid?group=1&adid=xxx
   const [loading, setLoading] = useState(true);
-  const [summaryData, setSummaryData] = useState(summary_mMckData);
+  const [summaryData, setSummaryData] = useState(null);
   const [chartData, setChartData] = useState(null);
-  const [effectData, setEffectData] = useState(effect_MockData);
+  const [effectData, setEffectData] = useState(null);
   const [unit, setUnit] = useState('day');
 
   useEffect(() => {
     setLoading(true);
-    let fetchUrl = '';
-    let params = {};
-    if (mode === 'slot') {
-      fetchUrl = `/api/adinfo/slot/${adslotid}`;
-    } else if (mode === 'bid') {
-      fetchUrl = `/api/adinfo/bid/${bidid}`;
-    } else if (mode === 'group') {
-      fetchUrl = `/api/adinfo/group/${adslotid}`;
-      params = { adid: query.adid };
-    }
-    // 실제 API 요청 부분 (fetch/axios 등)
-    // 아래는 더미 데이터로 대체
     setTimeout(() => {
-      // mode별로 더미 데이터 분기
-      if (mode === 'slot') {
+      if (slotData) {
         setSummaryData({
-          place: '강남역 2번 출구 디지털 패널',
-          price: '₩ 2,450,000',
-          period: '2025.05.01',
-          status: '진행중',
+          place: slotData.place,
+          price: slotData.price,
+          period: slotData.period,
+          status: slotData.status,
         });
         setChartData(chartDummy);
-        setEffectData(effectData);
-      } else if (mode === 'bid') {
-        setSummaryData({
-          place: '강남역 2번 출구 디지털 패널 (08:00~10:00)',
-          price: '₩ 85,000',
-          period: '2025.05.23',
-          status: '진행중',
-        });
-        setChartData(chartDummy); // 실제로는 해당 시간대 데이터만
-        setEffectData(effectData);
-      } else if (mode === 'group') {
-        setSummaryData({
-          place: '강남역 2번 출구 디지털 패널 (그룹 통계)',
-          price: '₩ 2,000,000',
-          period: '2025.05.01~2025.05.31',
-          status: '진행중',
-        });
-        setChartData(chartDummy); // 실제로는 그룹 데이터만
-        setEffectData(effectData);
+        setEffectData(effect_MockData);
       }
       setLoading(false);
     }, 300);
-  }, [adslotid, bidid, query.adid, mode]);
+  }, [adslotid, slotData]);
+
+  // 입찰 참여하기 버튼 클릭 시 해당 광고자리의 입찰 페이지로 이동
+  const handleBidClick = () => {
+    if (adslotid) {
+      navigate(`/ad-bid?slotId=${encodeURIComponent(adslotid)}`);
+    }
+  };
 
   if (loading) return <div>로딩중...</div>;
   if (!summaryData) return <div>데이터 없음</div>;
@@ -233,9 +198,7 @@ function Adinfo() {
               광고 노출 상세 정보
             </h1>
             <p className="mt-2 text-sm text-gray-600">
-              {mode === 'slot' && '입찰한 광고 자리의 전체 노출 정보입니다.'}
-              {mode === 'bid' && '선택한 시간대의 노출 정보입니다.'}
-              {mode === 'group' && '그룹 통계로 묶인 시간대의 노출 정보입니다.'}
+              광고 자리에 대한 상세 정보입니다.
             </p>
           </div>
           {summaryData && <AdInfoSummary data={summaryData} />}
@@ -246,7 +209,6 @@ function Adinfo() {
               setUnit={setUnit}
             />
           )}
-          {/* 시간대별 노출 점수/응시율 그래프: 흰색 박스(카드)로 감싸기 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold mb-2">시간대별 응시율</h2>
@@ -257,9 +219,15 @@ function Adinfo() {
               <HourSlotScoreChart data={hourSlotScoreData} />
             </div>
           </div>
-          {/* AdInfoEffectSection가 출력되지 않는 경우: effectData가 null이거나 undefined일 때만 출력 안됨 */}
           {effectData && <AdInfoEffectSection data={effectData} />}
-          {/* 만약 effectData가 항상 배열이어야 한다면, effectData?.length > 0 && <AdInfoEffectSection ... /> 도 가능 */}
+          <div className="mt-8">
+            <button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded font-semibold"
+              onClick={handleBidClick}
+            >
+              입찰 참여하기
+            </button>
+          </div>
         </div>
       </main>
     </div>

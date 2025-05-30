@@ -1,118 +1,27 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BidHistoryChart from '../components/BidHistoryChart';
 import TimeSlotChart from '../components/TimeSlotChart';
 import EfficiencyChart from '../components/EfficiencyChart';
 import BidSummaryTable from '../components/BidSummaryTable';
+import bidPageData from '../data/bidPageData';
 import 'remixicon/fonts/remixicon.css';
 
-const TIME_SLOTS = [
-  '00:00 - 02:00',
-  '02:00 - 04:00',
-  '04:00 - 06:00',
-  '06:00 - 08:00',
-  '08:00 - 10:00',
-  '10:00 - 12:00',
-  '12:00 - 14:00',
-  '14:00 - 16:00',
-  '16:00 - 18:00',
-  '18:00 - 20:00',
-  '20:00 - 22:00',
-  '22:00 - 24:00',
-];
-const AVERAGE_BIDS = [
-  45000, 40000, 38000, 55000, 85000, 70000, 68000, 65000, 75000, 88000, 65000,
-  50000,
-];
-const COMPETITION = [
-  '낮음',
-  '매우 낮음',
-  '매우 낮음',
-  '보통',
-  '매우 높음',
-  '높음',
-  '높음',
-  '보통',
-  '높음',
-  '매우 높음',
-  '보통',
-  '낮음',
-];
-
-const BID_HISTORY_DATA = [
-  {
-    id: '평균 입찰가',
-    color: 'hsl(200, 80%, 60%)',
-    data: [
-      { x: '4월 1주', y: 52000 },
-      { x: '4월 2주', y: 54000 },
-      { x: '4월 3주', y: 56000 },
-      { x: '4월 4주', y: 58000 },
-      { x: '5월 1주', y: 60000 },
-      { x: '5월 2주', y: 63000 },
-      { x: '5월 3주', y: 65000 },
-      { x: '5월 4주', y: 68000 },
-    ],
-  },
-  {
-    id: '최고 입찰가',
-    color: 'hsl(40, 90%, 60%)',
-    data: [
-      { x: '4월 1주', y: 58000 },
-      { x: '4월 2주', y: 62000 },
-      { x: '4월 3주', y: 65000 },
-      { x: '4월 4주', y: 67000 },
-      { x: '5월 1주', y: 70000 },
-      { x: '5월 2주', y: 72000 },
-      { x: '5월 3주', y: 75000 },
-      { x: '5월 4주', y: 78000 },
-    ],
-  },
-];
-
-const TIMESLOT_CHART_DATA = [
-  { 시간대: '00-02', 평균입찰가: 45000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '02-04', 평균입찰가: 40000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '04-06', 평균입찰가: 38000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '06-08', 평균입찰가: 55000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '08-10', 평균입찰가: 85000, color: 'rgba(252,141,98,1)' },
-  { 시간대: '10-12', 평균입찰가: 70000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '12-14', 평균입찰가: 68000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '14-16', 평균입찰가: 65000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '16-18', 평균입찰가: 75000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '18-20', 평균입찰가: 88000, color: 'rgba(252,141,98,1)' },
-  { 시간대: '20-22', 평균입찰가: 65000, color: 'rgba(141,211,199,1)' },
-  { 시간대: '22-24', 평균입찰가: 50000, color: 'rgba(141,211,199,1)' },
-];
-
-const EFFICIENCY_CHART_DATA = [
-  {
-    id: '노출 점수',
-    color: 'hsl(200, 80%, 60%)',
-    data: [
-      { x: '00-04', y: 30 },
-      { x: '04-08', y: 25 },
-      { x: '08-12', y: 85 },
-      { x: '12-16', y: 70 },
-      { x: '16-20', y: 90 },
-      { x: '20-24', y: 40 },
-    ],
-  },
-  {
-    id: '가격 효율성',
-    color: 'hsl(40, 90%, 60%)',
-    data: [
-      { x: '00-04', y: 80 },
-      { x: '04-08', y: 90 },
-      { x: '08-12', y: 60 },
-      { x: '12-16', y: 70 },
-      { x: '16-20', y: 55 },
-      { x: '20-24', y: 75 },
-    ],
-  },
-];
-
 export default function AdBidPage() {
+  // 광고자리 id 파싱
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const slotId = params.get('slotId') || 'slot1';
+  const slotData =
+    bidPageData.BID_PAGE_DATA[slotId] || bidPageData.BID_PAGE_DATA['slot1'];
+  const TIME_SLOTS = bidPageData.TIME_SLOTS;
+  const AVERAGE_BIDS = bidPageData.AVERAGE_BIDS;
+  const COMPETITION = bidPageData.COMPETITION;
+  const BID_HISTORY_DATA = bidPageData.BID_HISTORY_DATA;
+  const TIMESLOT_CHART_DATA = bidPageData.TIMESLOT_CHART_DATA;
+  const EFFICIENCY_CHART_DATA = bidPageData.EFFICIENCY_CHART_DATA;
+
   // 시간대별 선택 및 입찰가 상태
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [bidValues, setBidValues] = useState({});
@@ -176,20 +85,20 @@ export default function AdBidPage() {
                 className="w-full h-full object-cover object-top"
               />
               <div className="absolute top-4 right-4 bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold shadow">
-                입찰 진행중
+                {slotData.bidStatus}
               </div>
             </div>
             <div className="p-4 sm:p-6 md:p-8">
               <div className="flex flex-col lg:flex-row flex-wrap justify-between items-start gap-6 lg:gap-8">
                 <div className="w-full lg:w-7/12">
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    강남역 2번 출구 디지털 광고판
+                    {slotData.name}
                   </h1>
                   <div className="flex items-center text-gray-600 mb-4">
                     <div className="w-5 h-5 flex items-center justify-center">
                       <i className="ri-map-pin-line"></i>
                     </div>
-                    <span className="ml-1">서울특별시 강남구 강남대로 396</span>
+                    <span className="ml-1">{slotData.location}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -197,7 +106,7 @@ export default function AdBidPage() {
                         광고판 크기
                       </div>
                       <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                        6m x 4m (가로 x 세로)
+                        {slotData.size}
                       </div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -205,7 +114,7 @@ export default function AdBidPage() {
                         일 평균 노출량
                       </div>
                       <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                        약 25,000명
+                        {slotData.avgExposure}
                       </div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -213,7 +122,7 @@ export default function AdBidPage() {
                         광고 형식
                       </div>
                       <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                        디지털 이미지/비디오
+                        {slotData.format}
                       </div>
                     </div>
                   </div>
@@ -221,12 +130,7 @@ export default function AdBidPage() {
                     <h2 className="text-lg font-semibold mb-3">
                       광고 위치 정보
                     </h2>
-                    <p className="text-gray-600 mb-4">
-                      강남역 2번 출구 앞에 위치한 프리미엄 디지털 광고판으로,
-                      유동인구가 매우 많은 지역입니다. 지하철 이용객 및
-                      강남대로를 지나는 차량에서 모두 시야 확보가 가능합니다.
-                      특히 20-40대 직장인 및 쇼핑객들의 통행이 많은 위치입니다.
-                    </p>
+                    <p className="text-gray-600 mb-4">{slotData.description}</p>
                   </div>
                 </div>
                 <div className="w-full lg:w-4/12 mt-6 lg:mt-0">
@@ -236,26 +140,24 @@ export default function AdBidPage() {
                       <div className="flex justify-between mb-2">
                         <span className="text-gray-600">입찰 마감까지</span>
                         <span className="font-medium text-red-600">
-                          12시간 23분
+                          {slotData.bidEnd}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-red-500 h-2 rounded-full"
-                          style={{ width: '35%' }}
+                          style={{ width: `${slotData.bidEndPercent}%` }}
                         ></div>
                       </div>
                     </div>
                     <div className="space-y-3 mb-5">
                       <div className="flex justify-between">
                         <span className="text-gray-600">광고 게재 기간</span>
-                        <span className="font-medium">
-                          2025.06.01 - 2025.06.30
-                        </span>
+                        <span className="font-medium">{slotData.period}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">평균 입찰가</span>
-                        <span className="font-medium">시간당 63,000원</span>
+                        <span className="font-medium">{slotData.avgBid}</span>
                       </div>
                     </div>
                     {/* 입찰 참여하기 버튼 제거됨 */}

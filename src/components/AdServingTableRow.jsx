@@ -21,7 +21,7 @@ function AdServingTableRow({ row }) {
   return (
     <div className="tr flex items-center min-h-[56px] border-b border-gray-200 bg-white">
       <div className="td flex-1 min-w-[180px] flex flex-col justify-center px-6 py-4">
-        <div className="text-[14px] font-medium leading-5 tracking-[0px] text-[#111827] font-['Roboto']">
+        <div className="text-[14px] font-medium leading-5 tracking-[0px] text-[#111827] font-['Roboto'] decoration-none">
           {row.place}
         </div>
         <div className="sub text-xs text-gray-400 mt-1">{row.sub}</div>

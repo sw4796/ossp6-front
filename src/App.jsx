@@ -13,26 +13,33 @@ import AdServingPage from './pages/AdServingPage';
 import Adinfo from './pages/Adinfo';
 import AdRegistration from './pages/AdRegistration';
 import AdSlotRegistration from './pages/AdSlotRegistration';
+import { AuthProvider } from './providers/AuthProvider';
 
 function App() {
   return (
     <BrowserRouter>
-      {/* <Header /> */}
-      <Routes>
-        <Route path="/" element={<Mainpage />} />
-        <Route path="/ad/:adName" element={<AdPost />} />
-        <Route path="/ad/:adName/bidding" element={<Bidding />} />
-        <Route path="/Signup" element={<Signup />} />
-        <Route path="/SignupForm" element={<SignupForm />} />
-        <Route path="/Myads" element={<Myads />} />
-        <Route path="/Local" element={<Local />} />
-        <Route path="/ad-serving" element={<AdServingPage />} />
-        <Route path="/ad-bid" element={<AdBidPage />} />
-        <Route path="/ad-info" element={<Adinfo />} />
-        <Route path="/ad-registration" element={<AdRegistration />} />
-        <Route path="/ad-slot-registration" element={<AdSlotRegistration />} />
-      </Routes>
+      <AuthProvider>
+        {/* <Header /> */}
+        <Routes>
+          <Route path="/" element={<Mainpage />} />
+          <Route path="/ad/:adName" element={<AdPost />} />
+          <Route path="/ad/:adName/bidding" element={<Bidding />} />
+          <Route path="/Signup" element={<Signup />} />
+          <Route path="/SignupForm" element={<SignupForm />} />
+          <Route path="/Myads" element={<Myads />} />
+          <Route path="/Local" element={<Local />} />
+          <Route path="/ad-serving" element={<AdServingPage />} />
+          <Route path="/ad-bid" element={<AdBidPage />} />
+          <Route path="/adinfo/:adslotid" element={<Adinfo />} />
+          <Route path="/ad-registration" element={<AdRegistration />} />
+          <Route
+            path="/ad-slot-registration"
+            element={<AdSlotRegistration />}
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
+
 export default App;

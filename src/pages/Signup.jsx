@@ -1,6 +1,9 @@
-import styled from "styled-components";
-import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
+import { useState, useContext } from 'react';
+import { AuthContext } from '../providers/AuthProvider';
+import { users } from '../data/users';
 
 const LoginButton = styled(Link)`
 display: inline-block;
@@ -93,17 +96,59 @@ const Button = styled.button`
 `;
 
 const Signup = () => {
+  const [id, setId] = useState('');
+  const [pw, setPw] = useState('');
+  const { user, login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // 이미 로그인된 경우 메인으로 이동
+  if (user) {
+    navigate('/');
+    return null;
+  }
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    // users 데이터에서 유저 찾기
+    const found = users.find((u) => u.id === id && u.password === pw);
+    if (found) {
+      login(found);
+      navigate('/');
+    } else {
+      alert('로그인 실패');
+    }
+  };
 
   return (
     <>
-            {/* 정보 입력란 (Form) */}
-            <Container>
-              <Title style={{display: 'flex', marginTop: 10, marginBottom: 20, borderBottom: '2px solid #ddd'}}>Welcome! ad-in-for</Title>
-              <Input type="text" placeholder="아이디"></Input>
-              <Input type="text" placeholder="비밀번호"></Input>
-              <Button>로그인</Button>
-              <SLink to="/SignupForm">회원가입</SLink>
-            </Container>
+      <Container>
+        <Title
+          style={{
+            display: 'flex',
+            marginTop: 10,
+            marginBottom: 20,
+            borderBottom: '2px solid #ddd',
+          }}
+        >
+          Welcome! ad-in-for
+        </Title>
+        <form onSubmit={handleLogin}>
+          <Input
+            type="text"
+            placeholder="아이디"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="비밀번호"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+          />
+          <Button type="submit">로그인</Button>
+        </form>
+        <SLink to="/SignupForm">회원가입</SLink>
+      </Container>
     </>
   );
 };

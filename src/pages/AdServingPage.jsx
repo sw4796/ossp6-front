@@ -3,14 +3,36 @@ import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
 import AdServingTableHeader from '../components/AdServingTableHeader';
 import AdServingTableRow from '../components/AdServingTableRow';
-import { adServingTableData } from '../data/adServingTableData';
-import filter_icon from '../assets/icon-filter.png';
+import { useLocation, useNavigate } from 'react-router-dom';
+import myads from '../data/bid';
+import ads from '../data/ads';
+import adslots from '../data/adslots';
 import dropdown_icon from '../assets/icon-dropdown.png';
 import left_arrow from '../assets/left-arrow.png';
 import right_arrow from '../assets/right-arrow.png';
-import static_icon from '../assets/static-icon.png';
 
 function AdServingPage() {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const adId = query.get('adId');
+  const navigate = useNavigate();
+
+  // 광고 정보
+  const adInfo = ads.find((ad) => ad.id === adId);
+
+  // 광고에 연결된 입찰/낙찰 데이터만 필터링
+  const filteredData = adId ? myads.filter((row) => row.adId === adId) : myads;
+
+  // 광고 자리명 목록 추출 (중복 제거)
+  const placeList = Array.from(
+    new Set(
+      filteredData.map((row) => {
+        const slot = adslots.find((s) => s.id === row.slotId);
+        return slot ? slot.name : row.name;
+      })
+    )
+  );
+
   const infoBoxData = [
     {
       title: '총 노출수',
@@ -22,12 +44,7 @@ function AdServingPage() {
     { title: '광고수', maincontent: '12', subcontent: '집행 중 광고' },
   ];
 
-  // 광고 자리명 목록 추출 (중복 제거)
-  const placeList = Array.from(
-    new Set(adServingTableData.map((row) => row.place))
-  );
-
-  // 드롭다운 및 필터 상태
+  // 드롭다운 필터 적용
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState('');
   const dropdownRef = useRef(null);
@@ -47,10 +64,35 @@ function AdServingPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
 
-  // 필터링된 데이터
-  const filteredData = selectedPlace
-    ? adServingTableData.filter((row) => row.place === selectedPlace)
-    : adServingTableData;
+  // place 필터 적용
+  const tableData = selectedPlace
+    ? filteredData.filter((row) => {
+        const slot = adslots.find((s) => s.id === row.slotId);
+        return (slot ? slot.name : row.name) === selectedPlace;
+      })
+    : filteredData;
+
+  const ITEMS_PER_PAGE = 10;
+  const [page, setPage] = useState(0);
+
+  // 페이지네이션 데이터
+  const totalPages = Math.max(1, Math.ceil(tableData.length / ITEMS_PER_PAGE));
+  const pagedData = tableData.slice(
+    page * ITEMS_PER_PAGE,
+    (page + 1) * ITEMS_PER_PAGE
+  );
+
+  const handlePrevPage = () => {
+    setPage((prev) => Math.max(0, prev - 1));
+  };
+  const handleNextPage = () => {
+    setPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
+
+  // 광고 자리 클릭 시 adinfo로 이동
+  const handleSlotClick = (slotId) => {
+    navigate(`/adinfo/${slotId}`);
+  };
 
   return (
     <>
@@ -59,7 +101,9 @@ function AdServingPage() {
         <div className="w-full max-w-[1200px] px-2 sm:px-4 py-8 flex flex-col gap-8">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-2">
-              <h1 className="font-bold text-2xl text-gray-900">광고 자리 관리</h1>
+              <h1 className="font-bold text-2xl text-gray-900">
+                광고 자리 관리
+              </h1>
               <p className="text-base text-gray-500">
                 효과적인 광고 위치 관리와 성과를 한눈에 확인하세요
               </p>
@@ -77,7 +121,9 @@ function AdServingPage() {
             </div>
           </div>
           <main className="flex flex-col gap-6 w-full">
-            <h2 className="font-bold text-xl text-black">입찰 광고 보기</h2>
+            <h2 className="font-bold text-xl text-black">
+              {adInfo ? `${adInfo.name}의 입찰/낙찰 내역` : '입찰 광고 보기'}
+            </h2>
             <div className="w-full bg-white rounded-xl shadow p-4 flex flex-col gap-4">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2" ref={dropdownRef}>
@@ -90,15 +136,14 @@ function AdServingPage() {
                       }}
                       onClick={() => setDropdownOpen((v) => !v)}
                     >
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        <img src={filter_icon} alt="img" className="w-5 h-5" />
-                      </div>
                       <span className="flex-1 text-sm text-center text-black whitespace-nowrap">
                         {selectedPlace ? selectedPlace : '광고 자리 필터'}
                       </span>
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        <img src={dropdown_icon} alt="img" className="w-5 h-5" />
-                      </div>
+                      <img
+                        src={dropdown_icon}
+                        alt="▼"
+                        style={{ width: 18, height: 18, marginLeft: 4 }}
+                      />
                     </button>
                     {dropdownOpen && (
                       <div className="absolute left-0 z-10 mt-1 w-full min-w-[140px] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -130,35 +175,50 @@ function AdServingPage() {
                       </div>
                     )}
                   </div>
-                  <button
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 bg-indigo-600 hover:bg-indigo-500 transition"
-                    style={{
-                      boxSizing: 'border-box',
-                      opacity: 1,
-                    }}
-                  >
-                    <img src={static_icon} alt="사진" className="w-5 h-5" />
-                    <span className="text-sm text-white whitespace-nowrap">
-                      그룹 통계 버튼
-                    </span>
-                  </button>
                 </div>
               </div>
               <div className="overflow-x-auto">
                 <div className="min-w-[700px]">
                   <AdServingTableHeader />
                   <div>
-                    {filteredData.map((row, idx) => (
-                      <AdServingTableRow key={idx} row={row} />
+                    {pagedData.map((row, idx) => (
+                      <AdServingTableRow
+                        key={idx}
+                        row={{
+                          ...row,
+                          place: (
+                            <span
+                              style={{
+                                color: '#2563eb',
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                              }}
+                              onClick={() => handleSlotClick(row.slotId)}
+                            >
+                              {adslots.find((s) => s.id === row.slotId)?.name ||
+                                row.name}
+                            </span>
+                          ),
+                          date:
+                            row.exposeTime ||
+                            row.Startdate + ' ~ ' + row.Enddate,
+                        }}
+                      />
                     ))}
                   </div>
                 </div>
               </div>
               <div className="flex justify-end items-center h-16">
                 <div className="flex items-center gap-2 mr-8">
-                  <span className="text-gray-700 text-sm">1/3 페이지</span>
+                  <span className="text-gray-700 text-sm">
+                    {page + 1}/{totalPages} 페이지
+                  </span>
                   <div className="flex gap-1">
-                    <button className="w-[30px] h-[30px] p-2 flex items-center justify-center rounded hover:bg-gray-100 border border-gray-300">
+                    <button
+                      className="w-[30px] h-[30px] p-2 flex items-center justify-center rounded hover:bg-gray-100 border border-gray-300"
+                      onClick={handlePrevPage}
+                      disabled={page === 0}
+                    >
                       <div className="w-full h-full flex items-center justify-center">
                         <img
                           src={left_arrow}
@@ -167,7 +227,11 @@ function AdServingPage() {
                         />
                       </div>
                     </button>
-                    <button className="w-[30px] h-[30px] p-2 flex items-center justify-center rounded hover:bg-gray-100 border border-gray-300">
+                    <button
+                      className="w-[30px] h-[30px] p-2 flex items-center justify-center rounded hover:bg-gray-100 border border-gray-300"
+                      onClick={handleNextPage}
+                      disabled={page >= totalPages - 1}
+                    >
                       <div className="w-full h-full flex items-center justify-center">
                         <img
                           src={right_arrow}
