@@ -180,205 +180,154 @@ export default function AdBidPage() {
             </div>
           </div>
           {/* 입찰 설정 및 요약 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
-            <div className="col-span-2">
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">입찰 설정</h2>
-                </div>
-                {/* 시간대별 입찰 입력 */}
-                <div
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                  id="timeSlots"
-                >
-                  {TIME_SLOTS.map((label, idx) => (
-                    <div
-                      key={idx}
-                      className="h-[112px] flex flex-col p-4 rounded-[16px] bg-transparent border border-solid border-gray-200 opacity-100 box-border"
-                    >
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                          {label}
-                        </span>
-                        <label className="inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={selectedSlots.includes(idx)}
-                            onChange={() => handleSlotToggle(idx)}
-                          />
-                          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                          <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span>
-                        </label>
-                      </div>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          className="w-full h-[42px] pl-[40px] pr-3 py-2 rounded-[8px] bg-[#efefef]/30 border border-[#D1D5DB] opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bid-input"
-                          placeholder="입찰가 입력"
-                          disabled={!selectedSlots.includes(idx)}
-                          value={bidValues[idx] ?? ''}
-                          onChange={(e) => handleBidInput(idx, e.target.value)}
-                          min={0}
-                        />
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500">₩</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-5 h-5 flex items-center justify-center text-primary">
-                      <i className="ri-information-line"></i>
-                    </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      선택한 시간대에만 광고가 노출됩니다. 시간대별로 다른
-                      입찰가를 설정할 수 있습니다. 자동 입찰을 설정하면 다음
-                      입찰 시 자동으로 입력된 가격으로 입찰됩니다.
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-5 h-5 flex items-center justify-center text-yellow-500">
-                      <i className="ri-lightbulb-line"></i>
-                    </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      피크 시간대(8-10시, 18-20시)는 경쟁이 치열합니다. 평균보다
-                      10-15% 높은 입찰가를 권장합니다.
-                    </span>
-                  </div>
-                </div>
+          <div>
+            <div
+              className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-8"
+              style={{ width: '100%' }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">입찰 설정</h2>
               </div>
-              {/* 입찰 요약 */}
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-                <h2 className="text-xl font-semibold mb-4">입찰 요약</h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          시간대
-                        </th>
-                        <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          입찰가
-                        </th>
-                        <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          평균 입찰가
-                        </th>
-                        <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          경쟁률
-                        </th>
-                      </tr>
-                    </thead>
-                    <BidSummaryTable
-                      selectedSlots={selectedSlots}
-                      bidValues={bidValues}
-                      TIME_SLOTS={TIME_SLOTS}
-                      AVERAGE_BIDS={AVERAGE_BIDS}
-                      COMPETITION={COMPETITION}
-                    />
-                  </table>
-                </div>
-                <div className="mt-6 border-t border-gray-200 pt-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium">총 선택 시간</span>
-                    <span>{totalHours}시간</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium">일일 예상 비용</span>
-                    <span>₩{dailyCost.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-medium">30일 총 예상 비용</span>
-                    <span className="text-lg font-bold text-primary">
-                      ₩{totalCost.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center mb-6">
-                    <label className="custom-checkbox flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={termsChecked}
-                        onChange={(e) => setTermsChecked(e.target.checked)}
-                      />
-                      <span className="checkmark"></span>
-                      <span className="ml-2 text-sm text-gray-600">
-                        입찰 규정 및 약관에 동의합니다
+              {/* 시간대별 입찰 입력 */}
+              <div
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                id="timeSlots"
+              >
+                {TIME_SLOTS.map((label, idx) => (
+                  <div
+                    key={idx}
+                    className="h-[112px] flex flex-col p-4 rounded-[16px] bg-transparent border border-solid border-gray-200 opacity-100 box-border"
+                  >
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
+                        {label}
                       </span>
-                    </label>
+                      <label className="inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={selectedSlots.includes(idx)}
+                          onChange={() => handleSlotToggle(idx)}
+                        />
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span>
+                      </label>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        className="w-full h-[42px] pl-[40px] pr-3 py-2 rounded-[8px] bg-[#efefef]/30 border border-[#D1D5DB] opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bid-input"
+                        placeholder="입찰가 입력"
+                        disabled={!selectedSlots.includes(idx)}
+                        value={bidValues[idx] ?? ''}
+                        onChange={(e) => handleBidInput(idx, e.target.value)}
+                        min={0}
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500">₩</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-end">
-                    <button
-                      className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-button font-medium transition-colors mr-3 whitespace-nowrap"
-                      type="button"
-                    >
-                      임시 저장
-                    </button>
-                    <button
-                      id="submitBidBtn"
-                      className={`bg-indigo-600 hover:bg-primary/90 text-white py-2 px-4 rounded-button font-medium transition-colors whitespace-nowrap ${canSubmit ? '' : 'opacity-50 cursor-not-allowed'}`}
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={!canSubmit}
-                    >
-                      입찰 제출하기
-                    </button>
+                ))}
+              </div>
+              <div className="mt-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-5 h-5 flex items-center justify-center text-primary">
+                    <i className="ri-information-line"></i>
                   </div>
+                  <span className="ml-2 text-sm text-gray-600">
+                    선택한 시간대에만 광고가 노출됩니다. 시간대별로 다른
+                    입찰가를 설정할 수 있습니다. 자동 입찰을 설정하면 다음 입찰
+                    시 자동으로 입력된 가격으로 입찰됩니다.
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-5 h-5 flex items-center justify-center text-yellow-500">
+                    <i className="ri-lightbulb-line"></i>
+                  </div>
+                  <span className="ml-2 text-sm text-gray-600">
+                    피크 시간대(8-10시, 18-20시)는 경쟁이 치열합니다. 평균보다
+                    10-15% 높은 입찰가를 권장합니다.
+                  </span>
                 </div>
               </div>
             </div>
-            {/* 광고 효율성 지표 */}
-            <div>
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-8">
-                <h2 className="text-xl font-semibold mb-4">광고 효율성 지표</h2>
-                <EfficiencyChart data={EFFICIENCY_CHART_DATA} />
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600">
-                        노출 대비 클릭률 (CTR)
-                      </span>
-                      <span className="font-medium">3.2%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-sky-500 h-2 rounded-full"
-                        style={{ width: '64%' }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600">
-                        비용 대비 전환율
-                      </span>
-                      <span className="font-medium">2.1%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-sky-500 h-2 rounded-full"
-                        style={{ width: '42%' }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600">
-                        투자수익률 (ROI)
-                      </span>
-                      <span className="font-medium">145%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-sky-500 h-2 rounded-full"
-                        style={{ width: '72%' }}
-                      ></div>
-                    </div>
-                  </div>
+            {/* 입찰 요약 */}
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">입찰 요약</h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        시간대
+                      </th>
+                      <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        입찰가
+                      </th>
+                      <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        평균 입찰가
+                      </th>
+                      <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        경쟁률
+                      </th>
+                    </tr>
+                  </thead>
+                  <BidSummaryTable
+                    selectedSlots={selectedSlots}
+                    bidValues={bidValues}
+                    TIME_SLOTS={TIME_SLOTS}
+                    AVERAGE_BIDS={AVERAGE_BIDS}
+                    COMPETITION={COMPETITION}
+                  />
+                </table>
+              </div>
+              <div className="mt-6 border-t border-gray-200 pt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium">총 선택 시간</span>
+                  <span>{totalHours}시간</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium">일일 예상 비용</span>
+                  <span>₩{dailyCost.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-medium">30일 총 예상 비용</span>
+                  <span className="text-lg font-bold text-primary">
+                    ₩{totalCost.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center mb-6">
+                  <label className="custom-checkbox flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={termsChecked}
+                      onChange={(e) => setTermsChecked(e.target.checked)}
+                    />
+                    <span className="checkmark"></span>
+                    <span className="ml-2 text-sm text-gray-600">
+                      입찰 규정 및 약관에 동의합니다
+                    </span>
+                  </label>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-button font-medium transition-colors mr-3 whitespace-nowrap"
+                    type="button"
+                  >
+                    임시 저장
+                  </button>
+                  <button
+                    id="submitBidBtn"
+                    className={`bg-indigo-600 hover:bg-primary/90 text-white py-2 px-4 rounded-button font-medium transition-colors whitespace-nowrap ${canSubmit ? '' : 'opacity-50 cursor-not-allowed'}`}
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={!canSubmit}
+                  >
+                    입찰 제출하기
+                  </button>
                 </div>
               </div>
-              {/* ...추가 영역 필요시 여기에... */}
             </div>
           </div>
         </div>

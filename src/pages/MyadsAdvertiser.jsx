@@ -1,22 +1,21 @@
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import Header from '../components/Header';
 import '../App.css';
 import ads from '../data/ads';
-import adslots from '../data/adslots';
 import ReactPaginate from 'react-paginate';
-// 유저 context import
 import { AuthContext } from '../providers/AuthProvider';
-import myBidData from '../data/bid';
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  height: 100vh;
   flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #f9fafb;
 `;
-
+// ...기존 스타일 컴포넌트 그대로 복사...
 const RowWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -24,7 +23,6 @@ const RowWrapper = styled.div`
   width: 60%;
   gap: 20px;
 `;
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -36,7 +34,6 @@ const Container = styled.div`
   box-sizing: border-box;
   box-shadow: 0 4px 12px #ddd;
 `;
-
 const Container1 = styled.div`
   display: flex;
   flex-direction: column;
@@ -48,13 +45,12 @@ const Container1 = styled.div`
   box-sizing: border-box;
   box-shadow: 0 4px 12px #ddd;
 `;
-
 const Title = styled.div`
   display: flex;
   align-items: flex-start;
-  font-weight: 500; //폰트 두께
+  font-weight: 500;
   white-space: nowrap;
-  margin-top: 0px; //공간 여백
+  margin-top: 0px;
   margin-bottom: 20px;
   font-size: 20px;
   font-weight: 500;
@@ -63,7 +59,6 @@ const Title = styled.div`
   letter-spacing: 0px;
   color: #000000;
 `;
-
 const ListHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -71,29 +66,24 @@ const ListHeader = styled.div`
   font-size: 15px;
   color: gray;
 `;
-
 const List = styled.div`
   display: flex;
   justify-content: space-between;
-
   width: 100%;
   font-size: 17px;
   color: black;
   padding: 25px 0;
   border-top: 1px solid #ddd;
 `;
-
 const Column = styled.div`
   flex: 2;
   text-align: center;
   font-weight: 500;
-
   &:first-child {
     text-align: left;
     flex: 4;
   }
 `;
-
 const Text = styled.div`
   display: flex;
   font-size: 28px;
@@ -101,7 +91,6 @@ const Text = styled.div`
   color: black;
   font-weight: 600;
 `;
-
 const Textdetail = styled.div`
   display: flex;
   font-size: 25px;
@@ -110,7 +99,7 @@ const Textdetail = styled.div`
   font-weight: 400;
 `;
 
-function Myads() {
+function MyadsAdvertiser() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
@@ -120,30 +109,25 @@ function Myads() {
     if (!user) {
       navigate('/login');
     }
+    if (user && user.role !== 'advertiser') {
+      navigate('/myslots');
+    }
   }, [user, navigate]);
 
-  // 내 광고만 필터링 (user.id 기준)
-  const myAdsList = ads.filter((ad) => ad.ownerId === user?.id);
+  const list = ads.filter((ad) => ad.ownerId === user?.id);
+  const totalCount = list.length;
+  const activeCount = list.filter((ad) => ad.status === '게재중').length;
+  const totalTraffic = list.reduce((sum, ad) => sum + (ad.traffic || 0), 0);
+  const totalPrice = list.reduce((sum, ad) => sum + (ad.price || 0), 0);
 
   const handlePageChange = (page) => {
     setPage(page.selected);
   };
-  const pageCount = Math.ceil(myAdsList.length / itemsPerPage);
+  const pageCount = Math.ceil(list.length / itemsPerPage);
   const current = page * itemsPerPage;
-  const currentPageAds = myAdsList.slice(current, current + itemsPerPage);
+  const currentPageList = list.slice(current, current + itemsPerPage);
 
-  // 내 광고의 입찰/낙찰 데이터
-  const activeAd = myAdsList.filter((ad) => ad.status === '게재중').length;
-  const totalAd = myAdsList.length;
-  const totalPrice = myAdsList.reduce((sum, ad) => sum + (ad.price || 0), 0);
-  const totalTraffic = myAdsList.reduce(
-    (sum, ad) => sum + (ad.traffic || 0),
-    0
-  );
-
-  // 광고 클릭 시 해당 광고의 입찰/낙찰 데이터 페이지로 이동
   const handleAdClick = (adId) => {
-    // AdServingPage로 이동, 쿼리로 adId 전달
     navigate(`/ad-serving?adId=${adId}`);
   };
 
@@ -155,8 +139,8 @@ function Myads() {
           <Container1>
             <Title>활성 광고 수</Title>
             <Text>
-              {activeAd}
-              <Textdetail>&nbsp; / {totalAd}</Textdetail>
+              {activeCount}
+              <Textdetail>&nbsp; / {totalCount}</Textdetail>
             </Text>
           </Container1>
           <Container1>
@@ -177,7 +161,7 @@ function Myads() {
             <Column>노출 점수</Column>
             <Column>가격</Column>
           </ListHeader>
-          {currentPageAds.map((ad, index) => (
+          {currentPageList.map((ad, index) => (
             <List key={index}>
               <Column>
                 <span
@@ -199,7 +183,6 @@ function Myads() {
                 >
                   {ad.name || '-'}
                 </span>
-                {/* 날짜 제거 */}
               </Column>
               <Column>
                 <span
@@ -238,4 +221,4 @@ function Myads() {
   );
 }
 
-export default Myads;
+export default MyadsAdvertiser;

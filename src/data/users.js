@@ -14,5 +14,17 @@ export const users = [
     email: 'user2@example.com',
     role: 'advertiser',
   },
+  {
+    id: 'advertiser1',
+    password: '1234',
+    nickname: '광고주1',
+    role: 'advertiser',
+  },
+  {
+    id: 'media1',
+    password: '5678',
+    nickname: '매체사1',
+    role: 'media',
+  },
   // 필요시 더 추가
 ];

@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
-import AdServingTableHeader from '../components/AdServingTableHeader';
 import AdServingTableRow from '../components/AdServingTableRow';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import myads from '../data/bid';
 import ads from '../data/ads';
 import adslots from '../data/adslots';
@@ -11,92 +10,92 @@ import dropdown_icon from '../assets/icon-dropdown.png';
 import left_arrow from '../assets/left-arrow.png';
 import right_arrow from '../assets/right-arrow.png';
 
-function AdServingPage() {
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const adId = query.get('adId');
-  const navigate = useNavigate();
+function SlotServingPage() {
+  const { slotId } = useParams();
 
-  // 광고 정보
-  const adInfo = ads.find((ad) => ad.id === adId);
+  // 광고자리 정보
+  const slotInfo = adslots.find((slot) => slot.id === slotId);
 
-  // 광고에 연결된 입찰/낙찰 데이터만 필터링 (data 폴더에서)
-  const filteredData = adId ? myads.filter((row) => row.adId === adId) : myads;
+  // 해당 광고자리의 입찰/낙찰 데이터만 필터링
+  let filteredData = myads.filter((row) => row.slotId === slotId);
 
-  // 지출대비 노출점수(임의: 평균 노출점수 / 평균 입찰가)
-  const avgScore =
-    filteredData.length > 0
-      ? (
-          filteredData.reduce((sum, row) => sum + (row.score || 0), 0) /
-          filteredData.length
-        ).toLocaleString(undefined, { maximumFractionDigits: 0 })
-      : '-';
-  const avgPrice =
-    filteredData.length > 0
-      ? filteredData.reduce((sum, row) => sum + (row.price || 0), 0) /
-        filteredData.length
+  // 광고명 목록 추출 (중복 제거)
+  const adNameList = Array.from(
+    new Set(
+      filteredData.map(
+        (row) =>
+          row.adName || ads.find((a) => a.id === row.adId)?.name || row.name
+      )
+    )
+  );
+
+  // 총 게재시간 계산 (exposeTime이 없으면 2시간씩 가정)
+  const totalExposeHours = filteredData.reduce((sum, row) => {
+    if (row.exposeTime) {
+      const match = row.exposeTime.match(/(\d{02}):(\d{02})~(\d{02}):(\d{02})/);
+      if (match) {
+        const start = parseInt(match[1], 10);
+        const end = parseInt(match[3], 10);
+        let diff = end - start;
+        if (diff < 0) diff += 24;
+        return sum + diff;
+      }
+    }
+    return sum + 2;
+  }, 0);
+
+  // 평균 노출점수(임의: 80), 평균 낙찰가(낙찰 row만)
+  const avgScore = 80;
+  const winRows = filteredData.filter((row) => row.status === '낙찰');
+  const avgWinPrice =
+    winRows.length > 0
+      ? winRows.reduce((sum, row) => sum + (row.price || 0), 0) / winRows.length
       : 0;
-  const scorePerCost =
-    avgPrice > 0 && avgScore !== '-'
-      ? (Number(avgScore) / avgPrice).toFixed(4)
+  const scorePerPrice =
+    avgScore > 0 && avgWinPrice > 0
+      ? (avgWinPrice / avgScore).toLocaleString(undefined, {
+          maximumFractionDigits: 0,
+        }) + '원'
       : '-';
 
-  // 총 지불가격
-  const totalPaid =
-    filteredData.length > 0
-      ? filteredData
-          .reduce((sum, row) => sum + (row.price || 0), 0)
-          .toLocaleString() + '원'
-      : '-';
+  // 총 매출(낙찰 row price 합)
+  const totalRevenue = winRows.reduce((sum, row) => sum + (row.price || 0), 0);
 
-  // 평균 노출 시간 (exposeTime이 없으면 2시간씩 가정)
-  const avgExposeHours =
+  // 평균 입찰가
+  const avgBid =
     filteredData.length > 0
       ? (
-          filteredData.reduce((sum, row) => {
-            if (row.exposeTime) {
-              const match = row.exposeTime.match(
-                /(\d{2}):(\d{2})~(\d{2}):(\d{2})/
-              );
-              if (match) {
-                const start = parseInt(match[1], 10);
-                const end = parseInt(match[3], 10);
-                let diff = end - start;
-                if (diff < 0) diff += 24;
-                return sum + diff;
-              }
-            }
-            return sum + 2;
-          }, 0) / filteredData.length
-        ).toLocaleString(undefined, { maximumFractionDigits: 1 }) + '시간'
+          filteredData.reduce((sum, row) => sum + (row.price || 0), 0) /
+          filteredData.length
+        ).toLocaleString(undefined, { maximumFractionDigits: 0 }) + '원'
       : '-';
 
   const infoBoxData = [
     {
-      title: '총 노출수',
-      maincontent: '25,840',
+      title: '총 게재시간',
+      maincontent: totalExposeHours + '시간',
       subcontent: '',
     },
     {
-      title: '지출대비 노출점수',
-      maincontent: scorePerCost,
+      title: '노출점수 대비 낙찰가',
+      maincontent: scorePerPrice,
       subcontent: '',
     },
     {
-      title: '총 지불가격',
-      maincontent: totalPaid,
+      title: '총 매출',
+      maincontent: totalRevenue.toLocaleString() + '원',
       subcontent: '',
     },
     {
-      title: '평균 노출 시간',
-      maincontent: avgExposeHours,
+      title: '평균 입찰가',
+      maincontent: avgBid,
       subcontent: '',
     },
   ];
 
   // 드롭다운 필터 적용
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState('');
+  const [selectedAd, setSelectedAd] = useState('');
   const dropdownRef = useRef(null);
 
   // 드롭다운 외부 클릭 시 닫기
@@ -114,11 +113,11 @@ function AdServingPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
 
-  // place 필터 적용
-  const tableData = selectedPlace
+  // 광고명 필터 적용
+  const tableData = selectedAd
     ? filteredData.filter((row) => {
-        const slot = adslots.find((s) => s.id === row.slotId);
-        return (slot ? slot.name : row.name) === selectedPlace;
+        const ad = ads.find((a) => a.id === row.adId);
+        return (ad ? ad.name : row.name) === selectedAd;
       })
     : filteredData;
 
@@ -139,13 +138,8 @@ function AdServingPage() {
     setPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
 
-  // 광고 자리 클릭 시 adinfo로 이동
-  const handleSlotClick = (slotId) => {
-    navigate(`/adinfo/${slotId}`);
-  };
-
   // 테이블 컬럼 정의
-  const columns = ['광고자리명', '상태', '입찰가', '노출일시'];
+  const columns = ['광고명', '상태', '낙찰가격', '노출일시'];
 
   return (
     <>
@@ -155,10 +149,10 @@ function AdServingPage() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-2">
               <h1 className="font-bold text-2xl text-gray-900">
-                광고 자리 관리
+                {slotInfo ? `${slotInfo.name} 입찰 내역` : '광고자리 입찰 내역'}
               </h1>
               <p className="text-base text-gray-500">
-                효과적인 광고 위치 관리와 성과를 한눈에 확인하세요
+                광고자리에 대한 입찰/낙찰 내역을 확인하세요.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full">
@@ -175,7 +169,9 @@ function AdServingPage() {
           </div>
           <main className="flex flex-col gap-6 w-full">
             <h2 className="font-bold text-xl text-black">
-              {adInfo ? `${adInfo.name}의 입찰/낙찰 내역` : '입찰 광고 보기'}
+              {slotInfo
+                ? `${slotInfo.name}의 입찰/낙찰 내역`
+                : '입찰 광고 보기'}
             </h2>
             <div className="w-full bg-white rounded-xl shadow p-4 flex flex-col gap-4">
               <div className="flex justify-between items-center mb-2">
@@ -190,7 +186,7 @@ function AdServingPage() {
                       onClick={() => setDropdownOpen((v) => !v)}
                     >
                       <span className="flex-1 text-sm text-center text-black whitespace-nowrap">
-                        {selectedPlace ? selectedPlace : '광고 자리 필터'}
+                        {selectedAd ? selectedAd : '광고명 필터'}
                       </span>
                       <img
                         src={dropdown_icon}
@@ -203,26 +199,26 @@ function AdServingPage() {
                         <div
                           className="px-4 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
                           onClick={() => {
-                            setSelectedPlace('');
+                            setSelectedAd('');
                             setDropdownOpen(false);
                           }}
                         >
                           전체
                         </div>
-                        {placeList.map((place) => (
+                        {adNameList.map((adName) => (
                           <div
-                            key={place}
+                            key={adName}
                             className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
-                              selectedPlace === place
+                              selectedAd === adName
                                 ? 'bg-indigo-100 text-indigo-700'
                                 : 'text-gray-700'
                             }`}
                             onClick={() => {
-                              setSelectedPlace(place);
+                              setSelectedAd(adName);
                               setDropdownOpen(false);
                             }}
                           >
-                            {place}
+                            {adName}
                           </div>
                         ))}
                       </div>
@@ -232,7 +228,25 @@ function AdServingPage() {
               </div>
               <div className="overflow-x-auto">
                 <div className="min-w-[700px]">
-                  <AdServingTableHeader columns={columns} />
+                  {/* 광고명, 상태, 낙찰가격, 노출일시로 헤더 직접 구현 */}
+                  <div className="thead bg-white font-['Roboto']">
+                    <div className="tr flex items-center min-h-[48px] border-b border-gray-200">
+                      {columns.map((col, idx) => (
+                        <div
+                          key={col}
+                          className={`th px-6 py-3 text-gray-500 font-semibold text-sm ${
+                            idx === 1
+                              ? 'w-56 px-8'
+                              : idx === 2
+                                ? 'w-56'
+                                : 'flex-1 min-w-[180px]'
+                          }`}
+                        >
+                          {col}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <div>
                     {pagedData.length === 0 ? (
                       <div
@@ -245,49 +259,35 @@ function AdServingPage() {
                         입찰 정보가 없습니다.
                       </div>
                     ) : (
-                      pagedData.map((row, idx) => (
-                        <AdServingTableRow
-                          key={idx}
-                          row={{
-                            광고자리명: (
-                              <span
-                                style={{
-                                  color: 'black',
-                                  cursor: 'pointer',
-                                  textDecoration: 'none',
-                                  transition: 'color 0.15s',
-                                }}
-                                onClick={() =>
-                                  navigate(
-                                    `/adinfo/${row.slotId || row.slot_id || ''}`
-                                  )
-                                }
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.color = '#2563eb';
-                                  e.currentTarget.style.textDecoration =
-                                    'underline';
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.color = 'black';
-                                  e.currentTarget.style.textDecoration = 'none';
-                                }}
-                              >
-                                {adslots.find((s) => s.id === row.slotId)
-                                  ?.name || row.name}
-                              </span>
-                            ),
-                            상태: row.status,
-                            입찰가: row.price
-                              ? `₩${row.price.toLocaleString()}`
-                              : '-',
-                            노출일시:
-                              row.exposeTime ||
-                              row.Startdate + ' ~ ' + row.Enddate,
-                            status: row.status,
-                          }}
-                          columns={columns}
-                        />
-                      ))
+                      pagedData.map((row, idx) => {
+                        // 상태: 3가지(진행중, 낙찰, 낙찰실패)로 임의 분배 (실제 데이터에 맞게 조정)
+                        let status = row.status;
+                        if (!status) {
+                          if (idx % 3 === 1) status = '낙찰';
+                          else if (idx % 3 === 2) status = '낙찰실패';
+                          else status = '진행중';
+                        }
+                        return (
+                          <AdServingTableRow
+                            key={idx}
+                            row={{
+                              광고명:
+                                row.adName ||
+                                ads.find((a) => a.id === row.adId)?.name ||
+                                row.name,
+                              상태: status,
+                              낙찰가격: row.price
+                                ? `₩${row.price.toLocaleString()}`
+                                : '-',
+                              노출일시:
+                                row.exposeTime ||
+                                row.Startdate + ' ~ ' + row.Enddate,
+                              status, // for badge color
+                            }}
+                            columns={columns}
+                          />
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -335,4 +335,4 @@ function AdServingPage() {
   );
 }
 
-export default AdServingPage;
+export default SlotServingPage;

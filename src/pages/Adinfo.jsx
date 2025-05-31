@@ -219,15 +219,6 @@ function Adinfo() {
               <HourSlotScoreChart data={hourSlotScoreData} />
             </div>
           </div>
-          {effectData && <AdInfoEffectSection data={effectData} />}
-          <div className="mt-8">
-            <button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded font-semibold"
-              onClick={handleBidClick}
-            >
-              입찰 참여하기
-            </button>
-          </div>
         </div>
       </main>
     </div>

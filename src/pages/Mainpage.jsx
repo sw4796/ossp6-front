@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -32,8 +32,10 @@ const adStatus = ['전체', '입찰중', '게재중', '입찰완료'];
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  height: 100vh;
   flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #f9fafb;
 `;
 
 const Container = styled.div`
@@ -122,6 +124,7 @@ const Mainpage = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [budget, setBudget] = useState(2700000);
+  const navigate = useNavigate();
 
   // 광고자리 리스트에 평균 통행량, 평균 노출점수, 평균 낙찰가 임의 데이터 추가
   const adslotList = adslots.map((slot, idx) => {
@@ -155,7 +158,7 @@ const Mainpage = () => {
 
   // 광고자리 클릭 시 Adinfo로 이동
   const handleSlotClick = (slotId) => {
-    window.location.href = `/adinfo/${slotId}`;
+    navigate(`/adinfo/${slotId}`);
   };
 
   return (

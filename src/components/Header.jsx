@@ -24,28 +24,44 @@ const Header = () => {
         justifyContent: 'space-between',
         padding: '10px',
         borderBottom: '2px solid #ddd',
-        marginBottom: '50px',
+        marginBottom: '30px',
       }}
     >
       <Link to="/">
-        <img src="/logo.png" alt="logo" style={{ height: '30px' }} />
+        <img
+          src="/logo.png"
+          alt="logo"
+          style={{ height: '30px', marginLeft: '30px' }}
+        />
       </Link>
       <div style={{ display: 'flex', gap: '20px' }}>
         <Link to="/" className={`main-label ${isActive('/') ? 'active' : ''}`}>
           광고 입찰
         </Link>
-        <Link
-          to="/Myads"
-          className={`main-label ${isActive('/Myads') ? 'active' : ''}`}
-        >
-          내 광고
-        </Link>
-        <Link
-          to="/Local"
-          className={`main-label ${isActive('/Local') ? 'active' : ''}`}
-        >
-          지역 시세 보기
-        </Link>
+        {user && user.role === 'advertiser' && (
+          <Link
+            to="/myads"
+            className={`main-label ${isActive('/myads') ? 'active' : ''}`}
+          >
+            내 광고
+          </Link>
+        )}
+        {user && user.role === 'media' && (
+          <Link
+            to="/myslots"
+            className={`main-label ${isActive('/myslots') ? 'active' : ''}`}
+          >
+            내 광고자리
+          </Link>
+        )}
+        {!user && (
+          <Link
+            to="/myads"
+            className={`main-label ${isActive('/myads') ? 'active' : ''}`}
+          >
+            내 광고
+          </Link>
+        )}
       </div>
       {user ? (
         <button
@@ -62,18 +78,20 @@ const Header = () => {
             minWidth: '80px', // 최소 너비 고정
             width: 'auto', // 내용에 따라 자동 확장
             whiteSpace: 'nowrap', // 줄바꿈 방지
+            marginRight: '30px', // 오른쪽 여백 추가
           }}
         >
           Log-out
         </button>
       ) : (
         <Link
-          to="/Signup"
+          to="/Login"
           className="LoginButton"
           style={{
             minWidth: '80px',
             width: 'auto',
             whiteSpace: 'nowrap',
+            marginRight: '30px', // 오른쪽 여백 추가
           }}
         >
           Log-in

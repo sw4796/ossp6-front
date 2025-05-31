@@ -3,9 +3,8 @@ import './App.css';
 // import Header from './components/Header'
 import AdBidPage from './pages/AdBidPage';
 import Mainpage from './pages/Mainpage';
+import Login from './pages/Login';
 import Signup from './pages/Signup';
-import SignupForm from './pages/SignupForm';
-import Myads from './pages/Myads';
 import Local from './pages/Local';
 import AdPost from './pages/AdPost';
 import Bidding from './pages/Bidding';
@@ -14,6 +13,9 @@ import Adinfo from './pages/Adinfo';
 import AdRegistration from './pages/AdRegistration';
 import AdSlotRegistration from './pages/AdSlotRegistration';
 import { AuthProvider } from './providers/AuthProvider';
+import MyadsAdvertiser from './pages/MyadsAdvertiser';
+import MyslotsMedia from './pages/MyslotsMedia';
+import SlotServingPage from './pages/SlotServingPage';
 
 function App() {
   return (
@@ -24,9 +26,10 @@ function App() {
           <Route path="/" element={<Mainpage />} />
           <Route path="/ad/:adName" element={<AdPost />} />
           <Route path="/ad/:adName/bidding" element={<Bidding />} />
+          <Route path="/Login" element={<Login />} />
           <Route path="/Signup" element={<Signup />} />
-          <Route path="/SignupForm" element={<SignupForm />} />
-          <Route path="/Myads" element={<Myads />} />
+          <Route path="/myads" element={<MyadsAdvertiser />} />
+          <Route path="/myslots" element={<MyslotsMedia />} />
           <Route path="/Local" element={<Local />} />
           <Route path="/ad-serving" element={<AdServingPage />} />
           <Route path="/ad-bid" element={<AdBidPage />} />
@@ -36,6 +39,7 @@ function App() {
             path="/ad-slot-registration"
             element={<AdSlotRegistration />}
           />
+          <Route path="/slot-serving/:slotId" element={<SlotServingPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

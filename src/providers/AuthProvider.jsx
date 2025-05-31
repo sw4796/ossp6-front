@@ -32,11 +32,11 @@ export function AuthProvider({ children }) {
   // 로그인 안 했으면 로그인 페이지로 리다이렉트 (로그인/회원가입 페이지 제외)
   useEffect(() => {
     if (!initialized) return;
-    const publicPaths = ['/login', '/signup', '/signupform'];
+    const publicPaths = ['/login', '/signup'];
     // 대소문자 구분 없이 비교
     const currentPath = location.pathname.toLowerCase();
     if (!user && !publicPaths.includes(currentPath)) {
-      navigate('/signup');
+      navigate('/login');
     }
   }, [user, location.pathname, navigate, initialized]);
 
