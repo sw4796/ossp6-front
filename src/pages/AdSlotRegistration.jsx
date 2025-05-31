@@ -138,7 +138,7 @@ function AdSlotRegistration() {
   const getLatLngFromKakao = async (addr) => {
     setIsLoadingLatLng(true);
     try {
-      const REST_API_KEY = 'c86abd2312d45ac6800eac3eda21c234'; // 실제 키로 교체
+      const REST_API_KEY = import.meta.env.VITE_KAKAO_API_KEY; // 실제 키로 교체
       const res = await fetch(
         `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
           addr
@@ -199,8 +199,7 @@ function AdSlotRegistration() {
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
-      script.src =
-        'https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6b265bad7c9dec63e7330768e737087&autoload=false';
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY}&autoload=false`;
       script.async = true;
       script.onload = () => {
         if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
