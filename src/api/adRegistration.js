@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-});
+import api from './auth'; // auth.js의 api 인스턴스를 import
 
 // 광고 등록 (multipart/form-data)
 export const registAd = async (dto, file) => {

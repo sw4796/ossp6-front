@@ -2,8 +2,9 @@ import React, { useRef, useState, useContext } from 'react';
 import Header from '../components/Header';
 import { AuthContext } from '../providers/AuthContext';
 import { registAd } from '../api/adRegistration';
+import { useNavigate } from 'react-router-dom';
 
-const MAX_FILES = 5;
+const MAX_FILES = 1;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const categories = [
@@ -28,16 +29,13 @@ function AdRegistration() {
   const [highlight, setHighlight] = useState(false);
   const fileInputRef = useRef();
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // Handle file selection (from input or drop)
   const handleFiles = (fileList) => {
     let newFiles = Array.from(fileList);
     // Filter invalid files
     newFiles = newFiles.filter((file) => {
-      if (files.length >= MAX_FILES) {
-        alert('최대 5개의 파일만 업로드 가능합니다.');
-        return false;
-      }
       if (file.size > MAX_FILE_SIZE) {
         alert('파일 크기는 10MB를 초과할 수 없습니다.');
         return false;
@@ -52,7 +50,10 @@ function AdRegistration() {
       }
       return true;
     });
-    setFiles((prev) => [...prev, ...newFiles].slice(0, MAX_FILES));
+    // 항상 1개만 유지
+    if (newFiles.length > 0) {
+      setFiles([newFiles[0]]);
+    }
   };
 
   // Drag & drop handlers
@@ -104,7 +105,7 @@ function AdRegistration() {
       const res = await registAd(dto, files[0]);
       if (res.data && res.data.success) {
         alert('광고가 성공적으로 등록되었습니다!');
-        // TODO: 등록 후 이동할 페이지가 있다면 navigate 사용
+        navigate('/'); // 메인화면으로 이동
       } else {
         alert(res.data?.message || '광고 등록에 실패했습니다.');
       }
@@ -235,7 +236,6 @@ function AdRegistration() {
                   ref={fileInputRef}
                   className="file-input"
                   accept="image/*,video/*"
-                  multiple
                   style={{ display: 'none' }}
                   onChange={(e) => {
                     handleFiles(e.target.files);

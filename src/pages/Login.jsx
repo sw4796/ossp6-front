@@ -170,7 +170,7 @@ const Signup = () => {
           </div>
           <Button type="submit">로그인</Button>
         </form>
-        <SLink to="/SignupForm">회원가입</SLink>
+        <SLink to="/Signup">회원가입</SLink>
       </Container>
     </>
   );
