@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
     // 대소문자 구분 없이 비교
     const currentPath = location.pathname.toLowerCase();
     if (!user && !publicPaths.includes(currentPath)) {
+      alert('로그인이 필요합니다.');
       navigate('/login');
     }
   }, [user, location.pathname, navigate, initialized]);

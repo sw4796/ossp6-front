@@ -2,12 +2,17 @@ import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
 function HourSlotApplyChart({ data }) {
+  // 예시: data = [{ 시간대: '00-02', 응시율: 10 }, ...]
+  // x축 라벨과 y축 데이터 모두 원래 순서대로 사용
+  const xLabels = data.map((d) => d.시간대);
+  const yValues = data.map((d) => d.응시율);
+
   const option = {
     animation: false,
     tooltip: { trigger: 'axis' },
     xAxis: {
       type: 'category',
-      data: data.map((d) => d.시간대),
+      data: xLabels,
       axisLabel: { fontSize: 13, fontFamily: 'Roboto, sans-serif' },
     },
     yAxis: {
@@ -17,7 +22,7 @@ function HourSlotApplyChart({ data }) {
     },
     series: [
       {
-        data: data.map((d) => d.응시율),
+        data: yValues,
         type: 'line',
         smooth: true,
         symbol: 'circle',

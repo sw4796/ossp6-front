@@ -21,7 +21,7 @@ function AdInfoSummary({ data }) {
           </p>
         </div>
         <div>
-          <h2 className="text-sm font-medium text-gray-500">낙찰 납입 가격</h2>
+          <h2 className="text-sm font-medium text-gray-500">평균 낙찰 가격</h2>
           <p className="mt-1 text-lg font-semibold text-gray-900">
             {data.price}
           </p>
