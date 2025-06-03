@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { AuthContext } from './AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-export const AuthContext = createContext();
+import { login as apiLogin, logout as apiLogout } from '../api/auth';
+import React, { useState, useEffect } from 'react';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -9,14 +9,21 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 로그인 함수
-  const login = (userInfo) => {
-    setUser(userInfo);
-    localStorage.setItem('user', JSON.stringify(userInfo));
+  // 로그인 함수 (API 연동)
+  const login = async (id, password, role) => {
+    try {
+      const userInfo = await apiLogin(id, password, role);
+      setUser(userInfo);
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      return true;
+    } catch {
+      return false;
+    }
   };
 
-  // 로그아웃 함수
+  // 로그아웃 함수 (API 연동)
   const logout = () => {
+    apiLogout();
     setUser(null);
     localStorage.removeItem('user');
     navigate('/login');

@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import '../App.css';
 import ads from '../data/ads';
 import ReactPaginate from 'react-paginate';
-import { AuthContext } from '../providers/AuthProvider';
+import { AuthContext } from '../providers/AuthContext';
 
 const Wrapper = styled.div`
   display: flex;
