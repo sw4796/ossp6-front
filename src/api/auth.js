@@ -13,6 +13,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// 응답 인터셉터 추가
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 419)
+    ) {
+      // 토큰 만료 또는 인증 오류 시 로그아웃 및 로그인 페이지로 이동
+      localStorage.removeItem('jwtToken');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // 로그인
 export const login = async (id, password, role) => {
   const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
