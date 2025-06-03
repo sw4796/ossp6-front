@@ -31,7 +31,7 @@ function App() {
           <Route path="/myads" element={<MyadsAdvertiser />} />
           <Route path="/myslots" element={<MyslotsMedia />} />
           <Route path="/Local" element={<Local />} />
-          <Route path="/ad-serving" element={<AdServingPage />} />
+          <Route path="/ad-serving/:adId" element={<AdServingPage />} />
           <Route path="/ad-bid" element={<AdBidPage />} />
           <Route path="/adinfo/:adslotid" element={<Adinfo />} />
           <Route path="/ad-registration" element={<AdRegistration />} />

@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
 import AdServingTableHeader from '../components/AdServingTableHeader';
 import AdServingTableRow from '../components/AdServingTableRow';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import myads from '../data/bid';
 import ads from '../data/ads';
 import adslots from '../data/adslots';
@@ -12,9 +12,7 @@ import left_arrow from '../assets/left-arrow.png';
 import right_arrow from '../assets/right-arrow.png';
 
 function AdServingPage() {
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const adId = query.get('adId');
+  const { adId } = useParams();
   const navigate = useNavigate();
 
   // 광고 정보
