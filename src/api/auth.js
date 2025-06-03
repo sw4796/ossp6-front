@@ -16,16 +16,24 @@ api.interceptors.request.use((config) => {
 // 로그인
 export const login = async (id, password, role) => {
   const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
-  // axios POST 요청으로 변경
   const res = await api.post('/login', {
     loginId: id,
     password,
     authStatus,
   });
   if (res.data.success) {
-    const { accessToken, grantType } = res.data.data;
+    const { accessToken } = res.data.data;
     localStorage.setItem('jwtToken', accessToken);
-    return { id, role, grantType };
+    // JWT 토큰에서 userId, auth만 추출
+    let payload = {};
+    try {
+      const decoded = JSON.parse(atob(accessToken.split('.')[1]));
+      payload = { userId: decoded.userId, role: decoded.auth };
+    } catch {
+      // 파싱 실패 시 payload는 빈 객체
+    }
+    // user 객체에 userId, auth만 포함
+    return { ...payload };
   } else {
     throw new Error('로그인 실패');
   }
