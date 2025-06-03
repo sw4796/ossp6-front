@@ -3,18 +3,16 @@ import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
 import AdServingTableHeader from '../components/AdServingTableHeader';
 import AdServingTableRow from '../components/AdServingTableRow';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { getMyAdDetail } from '../api/adServing';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ads from '../data/ads';
 import adslots from '../data/adslots';
 import dropdown_icon from '../assets/icon-dropdown.png';
 import left_arrow from '../assets/left-arrow.png';
 import right_arrow from '../assets/right-arrow.png';
+import { getMyAdDetail } from '../api/adServing';
 
 function AdServingPage() {
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const adId = query.get('adId');
+  const { adId } = useParams();
   const navigate = useNavigate();
 
   const [myAdDetail, setMyAdDetail] = useState(null);
@@ -35,20 +33,23 @@ function AdServingPage() {
   // 광고 정보
   const adInfo = ads.find((ad) => ad.id === adId);
 
-  // 광고에 연결된 입찰/낙찰 데이터만 필터링 (data 폴더에서)
-  // const filteredData = adId ? myads.filter((row) => row.adId === adId) : myads;
-  // 실제 API 데이터 사용
+  // API 데이터 기반으로 filteredData 생성
   const filteredData =
     myAdDetail && myAdDetail.slotList
       ? myAdDetail.slotList.map((slot) => ({
           ...slot,
-          // 기존 row 구조와 맞추기 위한 변환
           name: slot.adSlotName,
           price: slot.bidMoney,
           status:
             slot.bidStatus === 0 ? '입찰' : slot.bidStatus === 1 ? '낙찰' : '-',
           // exposeTime, Startdate, Enddate 등은 필요시 추가
         }))
+      : [];
+
+  // placeList: 광고자리명 목록 (API 데이터 기반)
+  const placeList =
+    myAdDetail && myAdDetail.slotList
+      ? Array.from(new Set(myAdDetail.slotList.map((slot) => slot.adSlotName)))
       : [];
 
   // 지출대비 노출점수(임의: 평균 노출점수 / 평균 입찰가)
@@ -188,12 +189,6 @@ function AdServingPage() {
 
   // 테이블 컬럼 정의
   const columns = ['광고자리명', '상태', '입찰가', '노출일시'];
-
-  // placeList: 광고자리명 목록 (API 데이터 기반)
-  const placeList =
-    myAdDetail && myAdDetail.slotList
-      ? Array.from(new Set(myAdDetail.slotList.map((slot) => slot.adSlotName)))
-      : [];
 
   return (
     <>

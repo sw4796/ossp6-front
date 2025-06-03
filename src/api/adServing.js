@@ -7,5 +7,12 @@ export const getAdServingList = (adid) => api.get('/ad-serving', { adid });
 export const getAdSlotInfo = (adslotId, type) =>
   api.get(`/ads/adslot/infor/${adslotId}`, { params: { type } });
 
+// 광고자리별 입찰/노출 내역 조회
+export const getSlotServingDetail = (adslotId) =>
+  api.get(`/ads/adslot/${adslotId}`);
+
+// 광고 노출 목록 조회
+
 // 내 광고 상세(슬롯 리스트 등) 조회
+
 export const getMyAdDetail = (adId) => api.get(`/ads/my/ad/${adId}`);

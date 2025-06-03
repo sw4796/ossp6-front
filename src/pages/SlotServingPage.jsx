@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
 import AdServingTableRow from '../components/AdServingTableRow';
 import { useParams } from 'react-router-dom';
-import myads from '../data/bid';
+import { getSlotServingDetail } from '../api/adServing';
 import ads from '../data/ads';
 import adslots from '../data/adslots';
 import dropdown_icon from '../assets/icon-dropdown.png';
@@ -13,11 +13,39 @@ import right_arrow from '../assets/right-arrow.png';
 function SlotServingPage() {
   const { slotId } = useParams();
 
+  const [slotDetail, setSlotDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!slotId) return;
+    setLoading(true);
+    getSlotServingDetail(slotId)
+      .then((res) => {
+        if (res.data && res.data.success) {
+          setSlotDetail(res.data.data);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [slotId]);
+
   // 광고자리 정보
   const slotInfo = adslots.find((slot) => slot.id === slotId);
 
-  // 해당 광고자리의 입찰/낙찰 데이터만 필터링
-  let filteredData = myads.filter((row) => row.slotId === slotId);
+  // 실제 API 데이터 사용
+  const filteredData =
+    slotDetail && slotDetail.histories
+      ? slotDetail.histories.map((row) => ({
+          ...row,
+          name: row.adName,
+          price: row.bid,
+          status:
+            row.bidStatus === 0 ? '입찰' : row.bidStatus === 1 ? '낙찰' : '-',
+          exposeTime:
+            row.bidStartTime && row.bidEndTime
+              ? `${row.bidStartTime.replace('T', ' ').slice(0, 16)} ~ ${row.bidEndTime.replace('T', ' ').slice(0, 16)}`
+              : '',
+        }))
+      : [];
 
   // 광고명 목록 추출 (중복 제거)
   const adNameList = Array.from(
@@ -28,70 +56,6 @@ function SlotServingPage() {
       )
     )
   );
-
-  // 총 게재시간 계산 (exposeTime이 없으면 2시간씩 가정)
-  const totalExposeHours = filteredData.reduce((sum, row) => {
-    if (row.exposeTime) {
-      const match = row.exposeTime.match(/(\d{02}):(\d{02})~(\d{02}):(\d{02})/);
-      if (match) {
-        const start = parseInt(match[1], 10);
-        const end = parseInt(match[3], 10);
-        let diff = end - start;
-        if (diff < 0) diff += 24;
-        return sum + diff;
-      }
-    }
-    return sum + 2;
-  }, 0);
-
-  // 평균 노출점수(임의: 80), 평균 낙찰가(낙찰 row만)
-  const avgScore = 80;
-  const winRows = filteredData.filter((row) => row.status === '낙찰');
-  const avgWinPrice =
-    winRows.length > 0
-      ? winRows.reduce((sum, row) => sum + (row.price || 0), 0) / winRows.length
-      : 0;
-  const scorePerPrice =
-    avgScore > 0 && avgWinPrice > 0
-      ? (avgWinPrice / avgScore).toLocaleString(undefined, {
-          maximumFractionDigits: 0,
-        }) + '원'
-      : '-';
-
-  // 총 매출(낙찰 row price 합)
-  const totalRevenue = winRows.reduce((sum, row) => sum + (row.price || 0), 0);
-
-  // 평균 입찰가
-  const avgBid =
-    filteredData.length > 0
-      ? (
-          filteredData.reduce((sum, row) => sum + (row.price || 0), 0) /
-          filteredData.length
-        ).toLocaleString(undefined, { maximumFractionDigits: 0 }) + '원'
-      : '-';
-
-  const infoBoxData = [
-    {
-      title: '총 게재시간',
-      maincontent: totalExposeHours + '시간',
-      subcontent: '',
-    },
-    {
-      title: '노출점수 대비 낙찰가',
-      maincontent: scorePerPrice,
-      subcontent: '',
-    },
-    {
-      title: '총 매출',
-      maincontent: totalRevenue.toLocaleString() + '원',
-      subcontent: '',
-    },
-    {
-      title: '평균 입찰가',
-      maincontent: avgBid,
-      subcontent: '',
-    },
-  ];
 
   // 드롭다운 필터 적용
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -140,6 +104,41 @@ function SlotServingPage() {
 
   // 테이블 컬럼 정의
   const columns = ['광고명', '상태', '낙찰가격', '노출일시'];
+
+  const infoBoxData = [
+    {
+      title: '총 매출',
+      maincontent:
+        slotDetail && slotDetail.totalRevenue !== undefined
+          ? slotDetail.totalRevenue.toLocaleString() + '원'
+          : '-',
+      subcontent: '',
+    },
+    {
+      title: '평균 입찰 횟수',
+      maincontent:
+        slotDetail && slotDetail.avgBidCount !== undefined
+          ? slotDetail.avgBidCount
+          : '-',
+      subcontent: '',
+    },
+    {
+      title: '총 노출 시간',
+      maincontent:
+        slotDetail && slotDetail.totalExposureHour !== undefined
+          ? slotDetail.totalExposureHour + '시간'
+          : '-',
+      subcontent: '',
+    },
+    {
+      title: '노출 점수',
+      maincontent:
+        slotDetail && slotDetail.exposureScore !== undefined
+          ? slotDetail.exposureScore
+          : '-',
+      subcontent: '',
+    },
+  ];
 
   return (
     <>
