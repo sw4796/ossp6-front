@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
-import { useState, useContext } from 'react';
-import { AuthContext } from '../providers/AuthProvider';
-import { users } from '../data/users';
+import { useState, useContext, useEffect } from 'react';
+import { AuthContext } from '../providers/AuthContext';
 
 const LoginButton = styled(Link)`
 display: inline-block;
@@ -98,24 +97,22 @@ const Button = styled.button`
 const Signup = () => {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
-  const [role, setRole] = useState('advertiser'); // 권한 선택 상태 추가
+  const [role, setRole] = useState('advertiser');
   const { user, login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // 이미 로그인된 경우 메인으로 이동
-  if (user) {
-    navigate('/');
-    return null;
-  }
+  // 이미 로그인된 경우 메인으로 이동 (렌더링 중이 아닌 useEffect에서 처리)
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // users 데이터에서 유저 찾기 (권한도 함께 비교)
-    const found = users.find(
-      (u) => u.id === id && u.password === pw && u.role === role
-    );
-    if (found) {
-      login(found);
+    // 서버 로그인 API 호출
+    const success = await login(id, pw, role);
+    if (success) {
       navigate('/');
     } else {
       alert('로그인 실패');

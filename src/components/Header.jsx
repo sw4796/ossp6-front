@@ -1,8 +1,8 @@
-import styled from 'styled-components';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../App.css';
 import { useContext } from 'react';
-import { AuthContext } from '../providers/AuthProvider';
+import { AuthContext } from '../providers/AuthContext';
+import { logout as apiLogout } from '../api/auth';
 
 const Header = () => {
   const location = useLocation();
@@ -11,6 +11,7 @@ const Header = () => {
   const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
+    apiLogout();
     logout();
     navigate('/');
   };
