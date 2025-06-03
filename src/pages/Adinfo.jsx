@@ -4,179 +4,121 @@ import Header from '../components/Header';
 import AdInfoSummary from '../components/AdInfoSummary';
 import AdInfoChartSection from '../components/AdInfoChartSection';
 import AdInfoEffectSection from '../components/AdInfoEffectSection';
-import HourSlotScoreChart from '../components/HourSlotScoreChart';
 import HourSlotApplyChart from '../components/HourSlotApplyChart';
+import StayTimeBoxPlotChart from '../components/StayTimeBoxPlotChart';
 import 'remixicon/fonts/remixicon.css';
-import adslotInfo from '../data/adslotInfo';
-
-// 더미 데이터 (나중에 API로 대체)
-const summary_mMckData = {
-  place: '강남역 2번 출구 디지털 패널',
-  price: '₩ 2,450,000',
-  period: '2025.05.01',
-  status: '진행중',
-};
-
-const effect_MockData = [
-  {
-    label: '예상 도달 인원',
-    value: '248,560명',
-    desc: '광고 기간 동안 예상되는 총 도달 인원',
-    icon: 'ri-group-line',
-    iconBg: 'bg-blue-50',
-    iconColor: 'text-blue-600',
-  },
-  {
-    label: '인당 노출 비용',
-    value: '₩ 9.86',
-    desc: '1인당 평균 광고 노출 비용',
-    icon: 'ri-money-dollar-circle-line',
-    iconBg: 'bg-green-50',
-    iconColor: 'text-green-600',
-  },
-  {
-    label: '효율성 점수',
-    value: '92.4점',
-    desc: '유사 광고 대비 효율성 점수',
-    icon: 'ri-bar-chart-grouped-line',
-    iconBg: 'bg-purple-50',
-    iconColor: 'text-purple-600',
-  },
-];
-
-// 차트 데이터 (나중에 API로 대체)
-const chartDummy = {
-  trafficDataByUnit: {
-    day: {
-      x: ['05-19', '05-20', '05-21', '05-22', '05-23', '05-24', '05-25'],
-      y: [7200, 6800, 7500, 8100, 7900, 8300, 8742],
-    },
-    week: {
-      x: ['5월 1주', '5월 2주', '5월 3주', '5월 4주'],
-      y: [22000, 24500, 26000, 27800],
-    },
-    month: {
-      x: ['2025-03', '2025-04', '2025-05'],
-      y: [90000, 102000, 110000],
-    },
-  },
-  hours: [
-    '00:00',
-    '02:00',
-    '04:00',
-    '06:00',
-    '08:00',
-    '10:00',
-    '12:00',
-    '14:00',
-    '16:00',
-    '18:00',
-    '20:00',
-    '22:00',
-  ],
-  days: ['월', '화', '수', '목', '금', '토', '일'],
-  weeks: ['1주', '2주', '3주', '4주'],
-  months: ['3월', '4월', '5월'],
-  exposureDataByUnit: {
-    day: (() => {
-      const arr = [];
-      for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 12; j++) {
-          let weight = 1;
-          if (j >= 4 && j <= 5) weight = 1.5;
-          if (j >= 9 && j <= 10) weight = 1.8;
-          if (i >= 5) weight = 0.8;
-          arr.push([j, i, Math.floor(Math.random() * 50 * weight) + 50]);
-        }
-      }
-      return arr;
-    })(),
-    week: (() => {
-      const arr = [];
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 12; j++) {
-          let weight = 1;
-          if (j >= 4 && j <= 5) weight = 1.5;
-          if (j >= 9 && j <= 10) weight = 1.8;
-          arr.push([j, i, Math.floor(Math.random() * 50 * weight) + 60]);
-        }
-      }
-      return arr;
-    })(),
-    month: (() => {
-      const arr = [];
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 12; j++) {
-          let weight = 1;
-          if (j >= 4 && j <= 5) weight = 1.5;
-          if (j >= 9 && j <= 10) weight = 1.8;
-          arr.push([j, i, Math.floor(Math.random() * 50 * weight) + 70]);
-        }
-      }
-      return arr;
-    })(),
-  },
-};
-
-// 시간대별 노출 점수/응시율 예시 데이터 추가
-const hourSlotScoreData = [
-  { 시간대: '00-02', 점수: 30 },
-  { 시간대: '02-04', 점수: 25 },
-  { 시간대: '04-06', 점수: 20 },
-  { 시간대: '06-08', 점수: 40 },
-  { 시간대: '08-10', 점수: 85 },
-  { 시간대: '10-12', 점수: 70 },
-  { 시간대: '12-14', 점수: 68 },
-  { 시간대: '14-16', 점수: 65 },
-  { 시간대: '16-18', 점수: 75 },
-  { 시간대: '18-20', 점수: 90 },
-  { 시간대: '20-22', 점수: 60 },
-  { 시간대: '22-24', 점수: 40 },
-];
-const hourSlotApplyData = [
-  { 시간대: '00-02', 응시율: 2.1 },
-  { 시간대: '02-04', 응시율: 1.8 },
-  { 시간대: '04-06', 응시율: 1.5 },
-  { 시간대: '06-08', 응시율: 2.5 },
-  { 시간대: '08-10', 응시율: 4.2 },
-  { 시간대: '10-12', 응시율: 3.8 },
-  { 시간대: '12-14', 응시율: 3.5 },
-  { 시간대: '14-16', 응시율: 3.2 },
-  { 시간대: '16-18', 응시율: 4.0 },
-  { 시간대: '18-20', 응시율: 4.5 },
-  { 시간대: '20-22', 응시율: 3.0 },
-  { 시간대: '22-24', 응시율: 2.2 },
-];
+import { getAdSlotInfo } from '../api/adServing';
+import { GazeRateChart } from '../components/AdInfoChartSection';
 
 function Adinfo() {
   const { adslotid } = useParams();
   const navigate = useNavigate();
 
-  // 광고자리 상세 데이터 가져오기
-  const slotData = adslotInfo[adslotid];
-
   const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [effectData, setEffectData] = useState(null);
-  const [unit, setUnit] = useState('day');
+  const [unit, setUnit] = useState('week'); // 기본 week로
+  const [hourSlotApplyData, setHourSlotApplyData] = useState([]);
+  const [stayTimeData, setStayTimeData] = useState([]);
 
   useEffect(() => {
+    if (!adslotid) return;
     setLoading(true);
-    setTimeout(() => {
-      if (slotData) {
+    getAdSlotInfo(adslotid, unit)
+      .then((res) => {
+        const data = res.data?.data;
+        if (!data) throw new Error('데이터 없음');
+        // 요약 정보
         setSummaryData({
-          place: slotData.place,
-          price: slotData.price,
-          period: slotData.period,
-          status: slotData.status,
+          place: data.navigateResponseDto?.adName || '',
+          price: data.navigateResponseDto?.avgBidMoney
+            ? `₩ ${data.navigateResponseDto.avgBidMoney.toLocaleString()}`
+            : '-',
+          period: data.navigateResponseDto?.startAdTime?.slice(0, 10) || '',
+          status: '-',
         });
-        setChartData(chartDummy);
-        setEffectData(effect_MockData);
-      }
-      setLoading(false);
-    }, 300);
-  }, [adslotid, slotData]);
+        // 효과 정보 (예시)
+        setEffectData([
+          {
+            label: '평균 응시율',
+            value: `${Math.round((data.attentionRateResponseDto?.avgAttentionRate || 0) * 100)}%`,
+            desc: '광고 평균 응시율',
+            icon: 'ri-eye-line',
+            iconBg: 'bg-blue-50',
+            iconColor: 'text-blue-600',
+          },
+          {
+            label: '평균 노출 점수',
+            value:
+              data.exposureScoreResponseDto?.avgExposureScore?.toFixed(1) ||
+              '-',
+            desc: '평균 노출 점수',
+            icon: 'ri-bar-chart-grouped-line',
+            iconBg: 'bg-purple-50',
+            iconColor: 'text-purple-600',
+          },
+        ]);
+        // 시간대별 응시율
+        if (data.attentionRateResponseDto?.attentionRations) {
+          setHourSlotApplyData(
+            data.attentionRateResponseDto.attentionRations.map((v, i) => ({
+              시간대: `${String(i * 2).padStart(2, '0')}-${String(i * 2 + 2).padStart(2, '0')}`,
+              응시율: Math.round(v * 1000) / 10,
+            }))
+          );
+        }
+        // 체류시간 박스플롯
+        if (data.stayTimeResponseDto?.stayTimes) {
+          setStayTimeData(
+            data.stayTimeResponseDto.stayTimes.map((d) => ({
+              time: d.time,
+              minTime: d.minTime,
+              q1Time: d.q1Time,
+              midTime: d.midTime,
+              q3Time: d.q3Time,
+              maxTime: d.maxTime,
+            }))
+          );
+        }
+        // 차트 데이터 (통행량, 노출점수 등)
+        setChartData({
+          trafficDataByUnit: {
+            [unit]: {
+              x:
+                data.viewCountResponseDto?.timeViewCount?.map(
+                  (_, i) => `구간${i + 1}`
+                ) || [],
+              y: data.viewCountResponseDto?.timeViewCount || [],
+            },
+          },
+          exposureData: data.exposureScoreResponseDto?.exposureScores || [],
+          hours: [
+            '00:00',
+            '02:00',
+            '04:00',
+            '06:00',
+            '08:00',
+            '10:00',
+            '12:00',
+            '14:00',
+            '16:00',
+            '18:00',
+            '20:00',
+            '22:00',
+          ],
+          weeks: ['1주', '2주', '3주', '4주'],
+          months: ['3월', '4월', '5월'],
+        });
+      })
+      .catch(() => {
+        setSummaryData(null);
+        setEffectData(null);
+        setHourSlotApplyData([]);
+        setChartData(null);
+      })
+      .finally(() => setLoading(false));
+  }, [adslotid, unit]);
 
   // 입찰 참여하기 버튼 클릭 시 해당 광고자리의 입찰 페이지로 이동
   const handleBidClick = () => {
@@ -185,7 +127,6 @@ function Adinfo() {
     }
   };
 
-  if (loading) return <div>로딩중...</div>;
   if (!summaryData) return <div>데이터 없음</div>;
 
   return (
@@ -202,6 +143,7 @@ function Adinfo() {
             </p>
           </div>
           {summaryData && <AdInfoSummary data={summaryData} />}
+          {effectData && <AdInfoEffectSection data={effectData} />}
           {chartData && (
             <AdInfoChartSection
               chartData={chartData}
@@ -215,9 +157,19 @@ function Adinfo() {
               <HourSlotApplyChart data={hourSlotApplyData} />
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold mb-2">시간대별 노출 점수</h2>
-              <HourSlotScoreChart data={hourSlotScoreData} />
+              <h2 className="text-lg font-semibold mb-2">응시율 데이터</h2>
+              <GazeRateChart
+                value={
+                  effectData && effectData[0]
+                    ? parseInt(effectData[0].value)
+                    : 0
+                }
+              />
             </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 my-8">
+            <h2 className="text-lg font-semibold mb-2">시간대별 체류시간</h2>
+            <StayTimeBoxPlotChart data={stayTimeData} />
           </div>
         </div>
       </main>
