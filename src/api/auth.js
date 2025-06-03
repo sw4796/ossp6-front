@@ -74,21 +74,6 @@ export const signup = async (id, password, rePassword, nickname, role) => {
   });
 
   if (res.data.success) {
-    const { accessToken } = res.data.data || {};
-    
-    if(accessToken){
-      localStorage.setItem('jwtToken', accessToken);
-
-      let payload = {};
-      try {
-        const decoded = JSON.parse(atob(accessToken.split('.')[1]));
-        payload = { userId: decoded.userId, role: decoded.auth };
-    } catch {
-      // 파싱 실패 시 payload는 빈 객체
-    }
-    // user 객체에 userId, auth만 포함
-    return { ...payload };
-    }
     return true;
   } else {
     throw new Error('회원가입 실패');
