@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import InfoBox from '../components/InfoBox';
 import AdServingTableHeader from '../components/AdServingTableHeader';
 import AdServingTableRow from '../components/AdServingTableRow';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ads from '../data/ads';
 import adslots from '../data/adslots';
 import dropdown_icon from '../assets/icon-dropdown.png';
@@ -14,7 +14,6 @@ import { getMyAdDetail } from '../api/adServing';
 function AdServingPage() {
   const { adId } = useParams();
   const navigate = useNavigate();
-
 
   const [myAdDetail, setMyAdDetail] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -52,7 +51,6 @@ function AdServingPage() {
     myAdDetail && myAdDetail.slotList
       ? Array.from(new Set(myAdDetail.slotList.map((slot) => slot.adSlotName)))
       : [];
-
 
   // 지출대비 노출점수(임의: 평균 노출점수 / 평균 입찰가)
   const avgScore =
@@ -191,12 +189,6 @@ function AdServingPage() {
 
   // 테이블 컬럼 정의
   const columns = ['광고자리명', '상태', '입찰가', '노출일시'];
-
-  // placeList: 광고자리명 목록 (API 데이터 기반)
-  const placeList =
-    myAdDetail && myAdDetail.slotList
-      ? Array.from(new Set(myAdDetail.slotList.map((slot) => slot.adSlotName)))
-      : [];
 
   return (
     <>
