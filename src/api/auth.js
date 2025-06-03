@@ -31,8 +31,7 @@ api.interceptors.response.use(
 );
 
 // 로그인
-export const login = async (id, password, role) => {
-  const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
+export const login = async (id, password, authStatus) => {
   const res = await api.post('/login', {
     loginId: id,
     password,

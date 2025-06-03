@@ -1,5 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import Header from '../components/Header';
+import { AuthContext } from '../providers/AuthContext';
+import { registAd } from '../api/adRegistration';
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -24,11 +26,8 @@ function AdRegistration() {
   const [files, setFiles] = useState([]);
   const [termsChecked, setTermsChecked] = useState(false);
   const [highlight, setHighlight] = useState(false);
-  const [address, setAddress] = useState('');
-  const [adDetailAddress, setAdDetailAddress] = useState('');
-  const [latlng, setLatlng] = useState({ lat: '', lng: '' });
-  const [isLoadingLatLng, setIsLoadingLatLng] = useState(false);
   const fileInputRef = useRef();
+  const { user } = useContext(AuthContext);
 
   // Handle file selection (from input or drop)
   const handleFiles = (fileList) => {
@@ -73,7 +72,7 @@ function AdRegistration() {
   };
 
   // Form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!adName.trim()) {
       alert('광고 이름을 입력해주세요.');
@@ -91,139 +90,28 @@ function AdRegistration() {
       alert('이용약관에 동의해주세요.');
       return;
     }
-    alert('광고가 성공적으로 등록되었습니다!');
-    // 실제 데이터 제출 로직 추가
-  };
-
-  // 주소 검색(daum 우편번호 서비스)
-  const handleAddressSearch = () => {
-    if (window.daum && window.daum.Postcode) {
-      new window.daum.Postcode({
-        oncomplete: function (data) {
-          // 도로명주소 또는 지번주소
-          const fullAddr = data.roadAddress || data.jibunAddress;
-          setAddress(fullAddr);
-          getLatLngFromKakao(fullAddr);
-        },
-      }).open();
-    } else {
-      alert('주소 검색 서비스를 불러올 수 없습니다.');
-    }
-  };
-
-  // 카카오 API로 위도/경도 변환
-  const getLatLngFromKakao = async (addr) => {
-    setIsLoadingLatLng(true);
-    try {
-      const REST_API_KEY = 'c86abd2312d45ac6800eac3eda21c234'; // 실제 키로 교체
-      const res = await fetch(
-        `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
-          addr
-        )}`,
-        {
-          headers: {
-            Authorization: `KakaoAK ${REST_API_KEY}`,
-          },
-        }
-      );
-      const data = await res.json();
-      if (
-        data.documents &&
-        data.documents.length > 0 &&
-        data.documents[0].x &&
-        data.documents[0].y
-      ) {
-        setLatlng({
-          lng: data.documents[0].x,
-          lat: data.documents[0].y,
-        });
-      } else {
-        setLatlng({ lat: '', lng: '' });
-        alert('좌표를 찾을 수 없습니다.');
-      }
-    } catch (e) {
-      setLatlng({ lat: '', lng: '' });
-      alert('좌표 변환에 실패했습니다.');
-    }
-    setIsLoadingLatLng(false);
-  };
-
-  // 카카오맵 스크립트 동적 로드 및 지도 표시
-  useEffect(() => {
-    if (!(latlng.lat && latlng.lng)) return;
-
-    function drawMap() {
-      const container = document.getElementById('kakao-map');
-      if (!container) return;
-      container.innerHTML = '';
-      const options = {
-        center: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
-        level: 3,
-      };
-      const map = new window.kakao.maps.Map(container, options);
-      new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
-        map,
-      });
-    }
-
-    // 이미 스크립트가 있으면 maps.load로 안전하게 drawMap 실행
-    if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
-      window.kakao.maps.load(drawMap);
+    if (!user?.userId) {
+      alert('로그인 정보가 없습니다. 다시 로그인 해주세요.');
       return;
     }
-
-    // 스크립트가 없으면 동적으로 추가
-    const scriptId = 'kakao-map-script';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.src =
-        'https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6b265bad7c9dec63e7330768e737087&autoload=false';
-      script.async = true;
-      script.onload = () => {
-        if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
-          window.kakao.maps.load(drawMap);
-        }
+    try {
+      const dto = {
+        userId: user.userId,
+        name: adName,
+        description: adDescription,
+        category: adCategory,
       };
-      document.body.appendChild(script);
-    } else {
-      // 이미 추가된 경우, 로드 완료 후 지도 표시
-      const checkLoaded = setInterval(() => {
-        if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
-          clearInterval(checkLoaded);
-          window.kakao.maps.load(drawMap);
-        }
-      }, 100);
+      const res = await registAd(dto, files[0]);
+      if (res.data && res.data.success) {
+        alert('광고가 성공적으로 등록되었습니다!');
+        // TODO: 등록 후 이동할 페이지가 있다면 navigate 사용
+      } else {
+        alert(res.data?.message || '광고 등록에 실패했습니다.');
+      }
+    } catch {
+      alert('광고 등록 중 오류가 발생했습니다.');
     }
-  }, [latlng.lat, latlng.lng]);
-
-  // 지역명 매핑 테이블
-  const regionMap = [
-    { keyword: '서울', region: '서울' },
-    { keyword: '경기', region: '경기' },
-    { keyword: '광주', region: '광주' },
-    { keyword: '전북', region: '전북' },
-    { keyword: '경남', region: '경남' },
-    { keyword: '경북', region: '경북' },
-    { keyword: '충남', region: '충남' },
-    { keyword: '대전', region: '대전' },
-    { keyword: '부산', region: '부산' },
-    { keyword: '충북', region: '충북' },
-    { keyword: '대구', region: '대구' },
-    { keyword: '전남', region: '전남' },
-  ];
-
-  // 주소에서 지역 추출 함수
-  function extractRegion(address) {
-    if (!address) return '';
-    for (const { keyword, region } of regionMap) {
-      if (address.startsWith(keyword)) return region;
-      // 혹시 "서울특별시", "경기도" 등 전체명도 대응
-      if (address.includes(keyword)) return region;
-    }
-    return '';
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
