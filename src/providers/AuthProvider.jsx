@@ -1,6 +1,6 @@
 import { AuthContext } from './AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { login as apiLogin, logout as apiLogout } from '../api/auth';
+import { login as apiLogin, logout as apiLogout, signup as apiSignup } from '../api/auth';
 import React, { useState, useEffect } from 'react';
 
 export function AuthProvider({ children }) {
@@ -29,6 +29,22 @@ export function AuthProvider({ children }) {
     navigate('/login');
   };
 
+//회원가입
+  const signup = async (id, password, rePassword, nickname, role) => {
+    try {
+      const userSignup = await apiSignup(id, password, rePassword, nickname, role);
+      
+      if(userSignup?.userId){
+      setUser(userSignup);
+      localStorage.setItem('user', JSON.stringify(userSignup));
+      }
+      
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   // 앱 시작 시 localStorage에서 유저 정보 복원
   useEffect(() => {
     const saved = localStorage.getItem('user');
@@ -51,7 +67,7 @@ export function AuthProvider({ children }) {
   if (!initialized) return null;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, signup }}>
       {children}
     </AuthContext.Provider>
   );

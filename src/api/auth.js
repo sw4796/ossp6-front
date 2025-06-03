@@ -62,4 +62,37 @@ export const logout = () => {
   localStorage.removeItem('user');
 };
 
+// 회원가입
+export const signup = async (id, password, rePassword, nickname, role) => {
+  const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
+  const res = await api.post('/login/signup', {
+    id,
+    password,
+    rePassword,
+    nickname,
+    authStatus,
+  });
+
+  if (res.data.success) {
+    const { accessToken } = res.data.data || {};
+    
+    if(accessToken){
+      localStorage.setItem('jwtToken', accessToken);
+
+      let payload = {};
+      try {
+        const decoded = JSON.parse(atob(accessToken.split('.')[1]));
+        payload = { userId: decoded.userId, role: decoded.auth };
+    } catch {
+      // 파싱 실패 시 payload는 빈 객체
+    }
+    // user 객체에 userId, auth만 포함
+    return { ...payload };
+    }
+    return true;
+  } else {
+    throw new Error('회원가입 실패');
+  }
+};
+
 export default api;
