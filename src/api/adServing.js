@@ -10,3 +10,6 @@ export const getAdSlotInfo = (adslotId, type) =>
 // 광고자리별 입찰/노출 내역 조회
 export const getSlotServingDetail = (adslotId) =>
   api.get(`/ads/adslot/${adslotId}`);
+
+// 광고 노출 목록 조회
+export const getMyAdDetail = (adId) => api.get(`/ads/my/ad/${adId}`);
