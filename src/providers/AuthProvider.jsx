@@ -12,7 +12,9 @@ export function AuthProvider({ children }) {
   // 로그인 함수 (API 연동)
   const login = async (id, password, role) => {
     try {
-      const userInfo = await apiLogin(id, password, role);
+      // role은 advertiser면 USER, media면 ADMIN으로 변환해서 전달
+      const mappedRole = role === 'advertiser' ? 'USER' : 'ADMIN';
+      const userInfo = await apiLogin(id, password, mappedRole);
       setUser(userInfo);
       localStorage.setItem('user', JSON.stringify(userInfo));
       return true;

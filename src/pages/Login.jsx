@@ -97,7 +97,7 @@ const Button = styled.button`
 const Signup = () => {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
-  const [role, setRole] = useState('advertiser');
+  const [role, setRole] = useState('USER');
   const { user, login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -151,9 +151,9 @@ const Signup = () => {
               <input
                 type="radio"
                 name="role"
-                value="advertiser"
-                checked={role === 'advertiser'}
-                onChange={() => setRole('advertiser')}
+                value="USER"
+                checked={role === 'USER'}
+                onChange={() => setRole('USER')}
               />
               광고주
             </label>
@@ -161,9 +161,9 @@ const Signup = () => {
               <input
                 type="radio"
                 name="role"
-                value="media"
-                checked={role === 'media'}
-                onChange={() => setRole('media')}
+                value="ADMIN"
+                checked={role === 'ADMIN'}
+                onChange={() => setRole('ADMIN')}
               />
               매체사
             </label>

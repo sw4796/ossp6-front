@@ -77,12 +77,13 @@ const Button = styled.button`
   }
 `;
 
+
 const Signup = () => {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const [repw, setrePw] = useState('');
   const [nick, setNick] = useState('');
-  const [role, setRole] = useState('advertiser'); // 권한 선택 상태 추가
+  const [role, setRole] = useState('USER'); // 권한 선택 상태 추가
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -120,6 +121,7 @@ const Signup = () => {
         >
           정보 입력
         </Title>
+
         <Input 
         type="text" 
         placeholder="아이디 입력"
@@ -147,9 +149,9 @@ const Signup = () => {
               <input
                 type="radio"
                 name="role"
-                value="advertiser"
-                checked={role === 'advertiser'}
-                onChange={() => setRole('advertiser')}
+                value="USER"
+                checked={role === 'USER'}
+                onChange={() => setRole('USEr')}
               />
               광고주
             </label>
@@ -157,9 +159,9 @@ const Signup = () => {
               <input
                 type="radio"
                 name="role"
-                value="media"
-                checked={role === 'media'}
-                onChange={() => setRole('media')}
+                value="ADMIN"
+                checked={role === 'ADMIN'}
+                onChange={() => setRole('ADMIN')}
               />
               매체사
             </label>
@@ -169,5 +171,6 @@ const Signup = () => {
     </>
   );
 };
+
 
 export default Signup;

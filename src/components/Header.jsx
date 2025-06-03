@@ -39,7 +39,7 @@ const Header = () => {
         <Link to="/" className={`main-label ${isActive('/') ? 'active' : ''}`}>
           광고 입찰
         </Link>
-        {user && user.role === 'advertiser' && (
+        {user && user.role === 'USER' && (
           <Link
             to="/myads"
             className={`main-label ${isActive('/myads') ? 'active' : ''}`}
@@ -47,7 +47,7 @@ const Header = () => {
             내 광고
           </Link>
         )}
-        {user && user.role === 'media' && (
+        {user && user.role === 'ADMIN' && (
           <Link
             to="/myslots"
             className={`main-label ${isActive('/myslots') ? 'active' : ''}`}

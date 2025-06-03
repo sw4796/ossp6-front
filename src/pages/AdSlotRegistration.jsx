@@ -1,5 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import Header from '../components/Header';
+import { registAdSlot } from '../api/adSlotRegistration';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../providers/AuthContext';
 
 const TIME_SLOTS = [
   '00:00 - 02:00',
@@ -13,10 +16,10 @@ const TIME_SLOTS = [
   '16:00 - 18:00',
   '18:00 - 20:00',
   '20:00 - 22:00',
-  '22:00 - 24:00',
+  '22:00 - 00:00',
 ];
 
-const MAX_FILES = 5;
+const MAX_FILES = 1;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // 지역명 매핑 테이블
@@ -50,21 +53,19 @@ function AdSlotRegistration() {
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
-  const [latlng, setLatlng] = useState({ lat: '', lng: '' });
-  const [isLoadingLatLng, setIsLoadingLatLng] = useState(false);
   const [minPrices, setMinPrices] = useState(Array(TIME_SLOTS.length).fill(''));
   const [files, setFiles] = useState([]);
   const [highlight, setHighlight] = useState(false);
+  const [width, setWidth] = useState('');
+  const [height, setHeight] = useState('');
   const fileInputRef = useRef();
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   // 이미지 업로드
   const handleFiles = (fileList) => {
     let newFiles = Array.from(fileList);
     newFiles = newFiles.filter((file) => {
-      if (files.length >= MAX_FILES) {
-        alert('최대 5개의 파일만 업로드 가능합니다.');
-        return false;
-      }
       if (file.size > MAX_FILE_SIZE) {
         alert('파일 크기는 10MB를 초과할 수 없습니다.');
         return false;
@@ -73,12 +74,12 @@ function AdSlotRegistration() {
         alert('이미지 파일만 업로드 가능합니다.');
         return false;
       }
-      if (files.some((f) => f.name === file.name && f.size === file.size)) {
-        return false;
-      }
       return true;
     });
-    setFiles((prev) => [...prev, ...newFiles].slice(0, MAX_FILES));
+    // 항상 1개만 유지
+    if (newFiles.length > 0) {
+      setFiles([newFiles[0]]);
+    }
   };
 
   // Drag & drop handlers
@@ -126,7 +127,6 @@ function AdSlotRegistration() {
         oncomplete: function (data) {
           const fullAddr = data.roadAddress || data.jibunAddress;
           setAddress(fullAddr);
-          getLatLngFromKakao(fullAddr);
         },
       }).open();
     } else {
@@ -134,64 +134,33 @@ function AdSlotRegistration() {
     }
   };
 
-  // 카카오 API로 위도/경도 변환
-  const getLatLngFromKakao = async (addr) => {
-    setIsLoadingLatLng(true);
-    try {
-      const REST_API_KEY = import.meta.env.VITE_KAKAO_API_KEY; // 실제 키로 교체
-      const res = await fetch(
-        `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(
-          addr
-        )}`,
-        {
-          headers: {
-            Authorization: `KakaoAK ${REST_API_KEY}`,
-          },
-        }
-      );
-      const data = await res.json();
-      if (
-        data.documents &&
-        data.documents.length > 0 &&
-        data.documents[0].x &&
-        data.documents[0].y
-      ) {
-        setLatlng({
-          lng: data.documents[0].x,
-          lat: data.documents[0].y,
-        });
-      } else {
-        setLatlng({ lat: '', lng: '' });
-        alert('좌표를 찾을 수 없습니다.');
-      }
-    } catch (e) {
-      setLatlng({ lat: '', lng: '' });
-      alert('좌표 변환에 실패했습니다.');
-    }
-    setIsLoadingLatLng(false);
-  };
-
   // 카카오맵 스크립트 동적 로드 및 지도 표시
   useEffect(() => {
-    if (!(latlng.lat && latlng.lng)) return;
+    if (!address) return;
 
     function drawMap() {
       const container = document.getElementById('kakao-map');
       if (!container) return;
       container.innerHTML = '';
-      const options = {
-        center: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
-        level: 3,
-      };
-      const map = new window.kakao.maps.Map(container, options);
-      new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(latlng.lat, latlng.lng),
-        map,
+      const geocoder = new window.kakao.maps.services.Geocoder();
+      geocoder.addressSearch(address, function (result, status) {
+        if (status === window.kakao.maps.services.Status.OK) {
+          const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+          const options = {
+            center: coords,
+            level: 3,
+          };
+          const map = new window.kakao.maps.Map(container, options);
+          new window.kakao.maps.Marker({
+            position: coords,
+            map,
+          });
+        }
       });
     }
 
-    if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
-      window.kakao.maps.load(drawMap);
+    if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+      drawMap();
       return;
     }
 
@@ -199,26 +168,26 @@ function AdSlotRegistration() {
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY}&autoload=false`;
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY}&libraries=services&autoload=false`;
       script.async = true;
       script.onload = () => {
-        if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
-          window.kakao.maps.load(drawMap);
-        }
+        window.kakao.maps.load(() => {
+          drawMap();
+        });
       };
       document.body.appendChild(script);
     } else {
       const checkLoaded = setInterval(() => {
-        if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
+        if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
           clearInterval(checkLoaded);
-          window.kakao.maps.load(drawMap);
+          drawMap();
         }
       }, 100);
     }
-  }, [latlng.lat, latlng.lng]);
+  }, [address]);
 
   // 제출
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!adSpaceName.trim()) {
       alert('광고 자리 이름을 입력해주세요.');
@@ -232,19 +201,46 @@ function AdSlotRegistration() {
       alert('주소를 입력해주세요.');
       return;
     }
-    // 최소 가격 필수 입력 체크 및 100원 단위 반올림
-    for (let i = 0; i < minPrices.length; i++) {
-      const v = minPrices[i];
-      if (v === '' || v === null || isNaN(Number(v))) {
-        alert('모든 시간대별 최소 가격을 입력해주세요.');
-        return;
-      }
-      if (Number(v) % 100 !== 0) {
-        minPrices[i] = String(Math.round(Number(v) / 100) * 100);
-      }
+    if (!user?.userId) {
+      alert('로그인 정보가 없습니다. 다시 로그인 해주세요.');
+      return;
     }
-    alert('광고 자리가 성공적으로 등록되었습니다.');
-    // 실제 등록 로직 추가
+    if (!width || !height) {
+      alert('광고판 가로/세로 길이를 입력해주세요.');
+      return;
+    }
+    // 최소 가격 필수 입력 체크 및 100원 단위 반올림
+    const minPriceList = TIME_SLOTS.map((slot, i) => {
+      let price = minPrices[i];
+      if (price === '' || price === null || isNaN(Number(price))) {
+        alert('모든 시간대별 최소 가격을 입력해주세요.');
+        throw new Error('가격 미입력');
+      }
+      price = Math.round(Number(price) / 100) * 100;
+      const [startTime, endTime] = slot.split(' - ');
+      return { startTime, endTime, price };
+    });
+    // dto 생성
+    const dto = {
+      slotName: adSpaceName,
+      description,
+      address,
+      width: Number(width),
+      height: Number(height),
+      adminId: user.userId, // 로그인 사용자 id
+      minPriceList,
+    };
+    try {
+      const res = await registAdSlot(dto, files[0]);
+      if (res.data && res.data.success == true && res.data.error == null) {
+        alert('광고 자리가 성공적으로 등록되었습니다.');
+        navigate('/');
+      } else {
+        alert(res.data?.error || '광고 자리 등록에 실패했습니다.');
+      }
+    } catch {
+      // 가격 미입력 등으로 throw된 경우는 이미 alert됨
+    }
   };
 
   return (
@@ -294,88 +290,120 @@ function AdSlotRegistration() {
               <p className="mt-1 text-xs text-gray-500">
                 최대 200자까지 입력 가능합니다.
               </p>
+              {/* 광고판 가로/세로 입력란 추가 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  미디어 업로드 <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pt-4">
+                  광고판 가로 길이 (cm) <span className="text-red-500">*</span>
                 </label>
-                <div
-                  className={`file-drop-area p-8 text-center ${highlight ? 'highlight' : ''}`}
-                  onDragEnter={(e) => {
-                    preventDefaults(e);
-                    setHighlight(true);
-                  }}
-                  onDragOver={(e) => {
-                    preventDefaults(e);
-                    setHighlight(true);
-                  }}
-                  onDragLeave={(e) => {
-                    preventDefaults(e);
-                    setHighlight(false);
-                  }}
-                  onDrop={onDrop}
+                <input
+                  type="number"
+                  min={1}
+                  className="w-full px-4 py-2 border border-solid border-gray-300 rounded text-gray-900 text-sm focus:ring-2 focus:ring-inset focus:ring-indigo-600 focus:outline-none"
+                  placeholder="가로(cm)"
+                  value={width}
+                  onChange={(e) =>
+                    setWidth(e.target.value.replace(/[^0-9]/g, ''))
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pt-4">
+                  광고판 세로 길이 (cm) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  className="w-full px-4 py-2 border border-solid border-gray-300 rounded text-gray-900 text-sm focus:ring-2 focus:ring-inset focus:ring-indigo-600 focus:outline-none"
+                  placeholder="세로(cm)"
+                  value={height}
+                  onChange={(e) =>
+                    setHeight(e.target.value.replace(/[^0-9]/g, ''))
+                  }
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                미디어 업로드 <span className="text-red-500">*</span>
+              </label>
+              <div
+                className={`file-drop-area p-8 text-center ${highlight ? 'highlight' : ''}`}
+                onDragEnter={(e) => {
+                  preventDefaults(e);
+                  setHighlight(true);
+                }}
+                onDragOver={(e) => {
+                  preventDefaults(e);
+                  setHighlight(true);
+                }}
+                onDragLeave={(e) => {
+                  preventDefaults(e);
+                  setHighlight(false);
+                }}
+                onDrop={onDrop}
+              >
+                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-gray-100">
+                  <i className="ri-upload-cloud-line text-2xl text-gray-500"></i>
+                </div>
+                <p className="text-sm text-gray-700 mb-2">
+                  파일을 이곳에 끌어다 놓거나
+                </p>
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-button text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                  onClick={() => fileInputRef.current.click()}
                 >
-                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-gray-100">
-                    <i className="ri-upload-cloud-line text-2xl text-gray-500"></i>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">
-                    파일을 이곳에 끌어다 놓거나
-                  </p>
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-button text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
-                    onClick={() => fileInputRef.current.click()}
-                  >
-                    파일 선택
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="file-input"
-                    accept="image/*,video/*"
-                    multiple
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      handleFiles(e.target.files);
-                      e.target.value = '';
-                    }}
-                  />
-                  <p className="mt-2 text-xs text-gray-500">
-                    지원 형식: JPG, PNG, GIF, MP4, MOV (최대 10MB)
-                  </p>
-                </div>
-                {/* 미리보기는 아래 한 번만 렌더 */}
-                <div className="preview-container flex flex-wrap gap-3 mt-4">
-                  {files.map((file, idx) => {
-                    const url = URL.createObjectURL(file);
-                    return (
+                  파일 선택
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="file-input"
+                  accept="image/*,video/*"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    handleFiles(e.target.files);
+                    e.target.value = '';
+                  }}
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  지원 형식: JPG, PNG, GIF, MP4, MOV (최대 10MB)
+                </p>
+              </div>
+              {/* 미리보기는 아래 한 번만 렌더 */}
+              <div className="preview-container flex flex-wrap gap-3 mt-4">
+                {files.map((file, idx) => {
+                  const url = URL.createObjectURL(file);
+                  return (
+                    <div
+                      className="preview-item relative w-[120px] h-[120px] rounded overflow-hidden shadow"
+                      key={idx}
+                    >
+                      {file.type.startsWith('image/') ? (
+                        <img
+                          src={url}
+                          alt={file.name}
+                          className="w-full h-full object-cover object-top"
+                        />
+                      ) : (
+                        <video
+                          src={url}
+                          muted
+                          controls
+                          className="w-full h-full object-cover object-top"
+                        />
+                      )}
                       <div
-                        className="preview-item relative w-[120px] h-[120px] rounded overflow-hidden shadow"
-                        key={idx}
+                        className="remove-btn absolute right-1 top-1 bg-white/90 rounded-full w-6 h-6 flex items-center justify-center cursor-pointer text-red-500"
+                        onClick={() => removeFile(idx)}
                       >
-                        {file.type.startsWith('image/') ? (
-                          <img
-                            src={url}
-                            alt={file.name}
-                            className="w-full h-full object-cover object-top"
-                          />
-                        ) : (
-                          <video
-                            src={url}
-                            muted
-                            controls
-                            className="w-full h-full object-cover object-top"
-                          />
-                        )}
-                        <div
-                          className="remove-btn absolute right-1 top-1 bg-white/90 rounded-full w-6 h-6 flex items-center justify-center cursor-pointer text-red-500"
-                          onClick={() => removeFile(idx)}
-                        >
-                          <i className="ri-close-line"></i>
-                        </div>
+                        <i className="ri-close-line"></i>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             {/* 위치 정보 섹션 */}
@@ -416,25 +444,15 @@ function AdSlotRegistration() {
                   지역: {extractRegion(address) || '알 수 없음'}
                 </p>
               )}
-              {isLoadingLatLng && (
-                <p className="mt-1 text-xs text-gray-500">좌표 변환 중...</p>
-              )}
-              {latlng.lat && latlng.lng && (
-                <>
-                  <p className="mt-1 text-xs text-gray-500">
-                    위도: {latlng.lat}, 경도: {latlng.lng}
-                  </p>
-                  <div
-                    className="mt-3 rounded-lg overflow-hidden border border-gray-200"
-                    style={{ width: '100%', height: '300px' }}
-                  >
-                    <div
-                      id="kakao-map"
-                      style={{ width: '100%', height: '300px' }}
-                    ></div>
-                  </div>
-                </>
-              )}
+              <div
+                className="mt-3 rounded-lg overflow-hidden border border-gray-200"
+                style={{ width: '100%', height: '300px' }}
+              >
+                <div
+                  id="kakao-map"
+                  style={{ width: '100%', height: '300px' }}
+                ></div>
+              </div>
             </div>
             {/* 시간대별 가격 설정 섹션 */}
             <div>
