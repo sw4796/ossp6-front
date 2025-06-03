@@ -4,7 +4,7 @@ import InfoBox from '../components/InfoBox';
 import AdServingTableHeader from '../components/AdServingTableHeader';
 import AdServingTableRow from '../components/AdServingTableRow';
 import { useLocation, useNavigate } from 'react-router-dom';
-import myads from '../data/bid';
+import { getMyAdDetail } from '../api/adServing';
 import ads from '../data/ads';
 import adslots from '../data/adslots';
 import dropdown_icon from '../assets/icon-dropdown.png';
@@ -17,11 +17,39 @@ function AdServingPage() {
   const adId = query.get('adId');
   const navigate = useNavigate();
 
+  const [myAdDetail, setMyAdDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!adId) return;
+    setLoading(true);
+    getMyAdDetail(adId)
+      .then((res) => {
+        if (res.data && res.data.success) {
+          setMyAdDetail(res.data.data);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [adId]);
+
   // 광고 정보
   const adInfo = ads.find((ad) => ad.id === adId);
 
   // 광고에 연결된 입찰/낙찰 데이터만 필터링 (data 폴더에서)
-  const filteredData = adId ? myads.filter((row) => row.adId === adId) : myads;
+  // const filteredData = adId ? myads.filter((row) => row.adId === adId) : myads;
+  // 실제 API 데이터 사용
+  const filteredData =
+    myAdDetail && myAdDetail.slotList
+      ? myAdDetail.slotList.map((slot) => ({
+          ...slot,
+          // 기존 row 구조와 맞추기 위한 변환
+          name: slot.adSlotName,
+          price: slot.bidMoney,
+          status:
+            slot.bidStatus === 0 ? '입찰' : slot.bidStatus === 1 ? '낙찰' : '-',
+          // exposeTime, Startdate, Enddate 등은 필요시 추가
+        }))
+      : [];
 
   // 지출대비 노출점수(임의: 평균 노출점수 / 평균 입찰가)
   const avgScore =
@@ -74,22 +102,36 @@ function AdServingPage() {
   const infoBoxData = [
     {
       title: '총 노출수',
-      maincontent: '25,840',
+      maincontent:
+        myAdDetail && myAdDetail.totalViewCount !== undefined
+          ? myAdDetail.totalViewCount.toLocaleString()
+          : '-',
       subcontent: '',
     },
     {
-      title: '지출대비 노출점수',
-      maincontent: scorePerCost,
+      title: '평균 노출 점수',
+      maincontent:
+        myAdDetail && myAdDetail.avgExposureScore !== undefined
+          ? myAdDetail.avgExposureScore
+          : '-',
       subcontent: '',
     },
     {
-      title: '총 지불가격',
-      maincontent: totalPaid,
+      title: '총 지출 비용',
+      maincontent:
+        myAdDetail && myAdDetail.totalBidMoney !== undefined
+          ? myAdDetail.totalBidMoney.toLocaleString() + '원'
+          : '-',
       subcontent: '',
     },
     {
       title: '평균 노출 시간',
-      maincontent: avgExposeHours,
+      maincontent:
+        myAdDetail &&
+        myAdDetail.overallMidTimeAvg !== undefined &&
+        myAdDetail.overallMidTimeAvg !== null
+          ? myAdDetail.overallMidTimeAvg + '시간'
+          : '-',
       subcontent: '',
     },
   ];
@@ -146,6 +188,12 @@ function AdServingPage() {
 
   // 테이블 컬럼 정의
   const columns = ['광고자리명', '상태', '입찰가', '노출일시'];
+
+  // placeList: 광고자리명 목록 (API 데이터 기반)
+  const placeList =
+    myAdDetail && myAdDetail.slotList
+      ? Array.from(new Set(myAdDetail.slotList.map((slot) => slot.adSlotName)))
+      : [];
 
   return (
     <>
