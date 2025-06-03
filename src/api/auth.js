@@ -61,4 +61,22 @@ export const logout = () => {
   localStorage.removeItem('user');
 };
 
+// 회원가입
+export const signup = async (id, password, rePassword, nickname, role) => {
+  const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
+  const res = await api.post('/login/signup', {
+    id,
+    password,
+    rePassword,
+    nickname,
+    authStatus,
+  });
+
+  if (res.data.success) {
+    return true;
+  } else {
+    throw new Error('회원가입 실패');
+  }
+};
+
 export default api;
