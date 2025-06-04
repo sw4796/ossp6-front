@@ -1,26 +1,54 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import BidHistoryChart from '../components/BidHistoryChart';
 import TimeSlotChart from '../components/TimeSlotChart';
 import EfficiencyChart from '../components/EfficiencyChart';
 import BidSummaryTable from '../components/BidSummaryTable';
-import bidPageData from '../data/bidPageData';
+import { getAdBidDetail } from '../api/adServing';
 import 'remixicon/fonts/remixicon.css';
 
 export default function AdBidPage() {
   // 광고자리 id 파싱
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const slotId = params.get('slotId') || 'slot1';
-  const slotData =
-    bidPageData.BID_PAGE_DATA[slotId] || bidPageData.BID_PAGE_DATA['slot1'];
-  const TIME_SLOTS = bidPageData.TIME_SLOTS;
-  const AVERAGE_BIDS = bidPageData.AVERAGE_BIDS;
-  const COMPETITION = bidPageData.COMPETITION;
-  const BID_HISTORY_DATA = bidPageData.BID_HISTORY_DATA;
-  const TIMESLOT_CHART_DATA = bidPageData.TIMESLOT_CHART_DATA;
-  const EFFICIENCY_CHART_DATA = bidPageData.EFFICIENCY_CHART_DATA;
+  const { adslotId } = useParams();
+
+  // API 데이터 상태
+  const [apiData, setApiData] = useState(null);
+  useEffect(() => {
+    if (!adslotId) return;
+    getAdBidDetail(adslotId).then((res) => {
+      if (res.data && res.data.success) {
+        setApiData(res.data.data);
+      }
+    });
+  }, [adslotId]);
+
+  // 데이터 분리
+  const slotData = apiData?.navigateBidResponseDto || {};
+  const bidInfo = apiData?.adInforBidResponseDto || {};
+
+  // 입찰 마감까지 남은 시간 계산
+  let bidEndText = '-';
+  let bidEndPercent = 0;
+  if (slotData.startDate && slotData.endDate) {
+    const now = new Date();
+    const start = new Date(slotData.startDate);
+    const end = new Date(slotData.endDate);
+    const total = end - start;
+    const remain = end - now;
+    if (remain > 0 && total > 0) {
+      const hours = Math.floor(remain / (1000 * 60 * 60));
+      const minutes = Math.floor((remain % (1000 * 60 * 60)) / (1000 * 60));
+      bidEndText = `${hours}시간 ${minutes}분 남음`;
+      bidEndPercent = Math.max(
+        0,
+        Math.min(100, ((total - remain) / total) * 100)
+      );
+    } else if (remain <= 0) {
+      bidEndText = '마감';
+      bidEndPercent = 100;
+    }
+  }
 
   // 시간대별 선택 및 입찰가 상태
   const [selectedSlots, setSelectedSlots] = useState([]);
@@ -39,7 +67,7 @@ export default function AdBidPage() {
     setBidValues((prevBid) =>
       isSelected
         ? { ...prevBid, [idx]: undefined }
-        : { ...prevBid, [idx]: AVERAGE_BIDS[idx] }
+        : { ...prevBid, [idx]: bidInfo.avgTimeBidMoney[idx] }
     );
 
     if (!termsChecked && !isSelected) {
@@ -70,6 +98,52 @@ export default function AdBidPage() {
     alert('입찰이 성공적으로 제출되었습니다!');
   };
 
+  // slotData, 입찰 마감까지, 그래프 데이터 등 API 데이터 기반으로 렌더링
+  // slotData: 광고자리 정보
+  // bidInfo: 입찰 기록 정보
+
+  // 시간대 라벨(2시간 단위 12개)
+  const TIME_SLOTS = [
+    '00:00~02:00',
+    '02:00~04:00',
+    '04:00~06:00',
+    '06:00~08:00',
+    '08:00~10:00',
+    '10:00~12:00',
+    '12:00~14:00',
+    '14:00~16:00',
+    '16:00~18:00',
+    '18:00~20:00',
+    '20:00~22:00',
+    '22:00~24:00',
+  ];
+
+  // 시간대별 평균 입찰가
+  const TIMESLOT_CHART_DATA = (bidInfo.avgTimeBidMoney || []).map((v, i) => ({
+    시간대: TIME_SLOTS[i],
+    평균입찰가: v,
+    color: 'rgba(141,211,199,1)',
+  }));
+  // 평균 입찰가/최고 입찰가 (그래프용)
+  const BID_HISTORY_DATA = [
+    {
+      id: '평균 입찰가',
+      color: 'hsl(200, 80%, 60%)',
+      data: (bidInfo.avgBidMoney || []).map((v, i) => ({
+        x: `${i + 1}회`,
+        y: v,
+      })),
+    },
+    {
+      id: '최고 입찰가',
+      color: 'hsl(40, 90%, 60%)',
+      data: (bidInfo.maxBidMoney || []).map((v, i) => ({
+        x: `${i + 1}회`,
+        y: v,
+      })),
+    },
+  ];
+
   return (
     <div className="font-['Noto Sans KR'] bg-gray-50 min-h-screen flex flex-col w-full">
       <Header />
@@ -92,13 +166,13 @@ export default function AdBidPage() {
               <div className="flex flex-col lg:flex-row flex-wrap justify-between items-start gap-6 lg:gap-8">
                 <div className="w-full lg:w-7/12">
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    {slotData.name}
+                    {slotData.adSlotName}
                   </h1>
                   <div className="flex items-center text-gray-600 mb-4">
                     <div className="w-5 h-5 flex items-center justify-center">
                       <i className="ri-map-pin-line"></i>
                     </div>
-                    <span className="ml-1">{slotData.location}</span>
+                    <span className="ml-1">{slotData.address}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -106,30 +180,18 @@ export default function AdBidPage() {
                         광고판 크기
                       </div>
                       <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                        {slotData.size}
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="text-sm text-gray-500 mb-1">
-                        일 평균 노출량
-                      </div>
-                      <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                        {slotData.avgExposure}
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="text-sm text-gray-500 mb-1">
-                        광고 형식
-                      </div>
-                      <div className="font-['Roboto'] text-base font-medium leading-6 tracking-normal text-black">
-                        {slotData.format}
+                        {slotData.width && slotData.height ? (
+                          <>
+                            {slotData.width} x {slotData.height} m (가로 x 세로)
+                          </>
+                        ) : (
+                          '정보 없음'
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-3">
-                      광고 위치 정보
-                    </h2>
+                    <h2 className="text-lg font-semibold mb-3">광고판 설명</h2>
                     <p className="text-gray-600 mb-4">{slotData.description}</p>
                   </div>
                 </div>
@@ -140,13 +202,13 @@ export default function AdBidPage() {
                       <div className="flex justify-between mb-2">
                         <span className="text-gray-600">입찰 마감까지</span>
                         <span className="font-medium text-red-600">
-                          {slotData.bidEnd}
+                          {bidEndText}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-red-500 h-2 rounded-full"
-                          style={{ width: `${slotData.bidEndPercent}%` }}
+                          style={{ width: `${bidEndPercent}%` }}
                         ></div>
                       </div>
                     </div>
@@ -193,7 +255,7 @@ export default function AdBidPage() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                 id="timeSlots"
               >
-                {TIME_SLOTS.map((label, idx) => (
+                {TIME_SLOTS?.map((label, idx) => (
                   <div
                     key={idx}
                     className="h-[112px] flex flex-col p-4 rounded-[16px] bg-transparent border border-solid border-gray-200 opacity-100 box-border"
@@ -268,17 +330,14 @@ export default function AdBidPage() {
                       <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         평균 입찰가
                       </th>
-                      <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        경쟁률
-                      </th>
                     </tr>
                   </thead>
                   <BidSummaryTable
                     selectedSlots={selectedSlots}
                     bidValues={bidValues}
                     TIME_SLOTS={TIME_SLOTS}
-                    AVERAGE_BIDS={AVERAGE_BIDS}
-                    COMPETITION={COMPETITION}
+                    AVERAGE_BIDS={bidInfo.avgTimeBidMoney}
+                    COMPETITION={bidInfo.COMPETITION}
                   />
                 </table>
               </div>
