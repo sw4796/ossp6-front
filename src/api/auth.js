@@ -79,4 +79,20 @@ export const signup = async (id, password, rePassword, nickname, role) => {
   }
 };
 
+export const getUSerToken = () => {
+  const token = localStorage.getItem('jwtToken');
+  if(!token) return null;
+
+  try{
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    return{
+      userId: decoded.userId,
+      role: decoded.auth,
+    };
+  }catch(e){
+    console.error(e);
+    return null;
+  }
+}
+
 export default api;
