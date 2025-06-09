@@ -151,7 +151,7 @@ const Signup = () => {
                 name="role"
                 value="USER"
                 checked={role === 'USER'}
-                onChange={() => setRole('USEr')}
+                onChange={() => setRole('USER')}
               />
               광고주
             </label>
@@ -166,7 +166,7 @@ const Signup = () => {
               매체사
             </label>
           </div>
-        <Button type="submit">회원가입 하기 </Button>
+        <Button type="button" onClick={handleSignup}>회원가입 하기 </Button>
       </Container>
     </>
   );
