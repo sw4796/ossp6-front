@@ -167,7 +167,12 @@ const Mainpage = () => {
   //const filterSlots = adSlots;
   const filterSlots = adSlots.filter((slot) => {
     const numericPrice = parseInt(slot.avgPrice.replace(/[^\d]/g, ''), 10);
-    return numericPrice <= budget;
+    const matchBudget = numericPrice <= budget;
+
+    const matchStatus = 
+    selectadStatus.includes('전체') || selectadStatus.includes(slot.status);
+
+    return matchBudget && matchStatus;
   }); // API에서 받아온 데이터를 그대로 사용
   
 
