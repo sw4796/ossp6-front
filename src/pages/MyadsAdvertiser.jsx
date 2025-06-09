@@ -117,7 +117,7 @@ function MyadsAdvertiser() {
     if (!user) {
       navigate('/login');
     }
-    if (user && user.role !== 'advertiser') {
+    if (user && user.role !== 'USER') {
       navigate('/myslots');
     }
   }, [user, navigate]);
