@@ -63,7 +63,7 @@ export const logout = () => {
 
 // 회원가입
 export const signup = async (id, password, rePassword, nickname, role) => {
-  const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
+  const authStatus = role;
   const res = await api.post('/login/signup', {
     id,
     password,
