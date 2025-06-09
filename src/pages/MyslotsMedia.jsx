@@ -127,7 +127,7 @@ function MyslotsMedia() {
     if (!user) {
       navigate('/login');
     }
-    if (user && user.role !== 'media') {
+    if (user && user.role !== 'ADMIN') {
       navigate('/myads');
     }
   }, [user, navigate]);

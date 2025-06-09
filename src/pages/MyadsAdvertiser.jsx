@@ -117,7 +117,7 @@ function MyadsAdvertiser() {
     if (!user) {
       navigate('/login');
     }
-    if (user && user.role !== 'advertiser') {
+    if (user && user.role !== 'USER') {
       navigate('/myslots');
     }
   }, [user, navigate]);
@@ -166,7 +166,7 @@ function MyadsAdvertiser() {
   const currentPageList = ads.slice(current, current + itemsPerPage);
 
   const handleAdClick = (adId) => {
-    navigate(`/ad-serving?adId=${adId}`);
+    navigate(`/ad-serving/${adId}`);
   };
 
   return (
