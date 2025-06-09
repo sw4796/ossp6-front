@@ -164,7 +164,11 @@ const Mainpage = () => {
   }, [fetchFilterSlots]); // useEffect now depends on the memoized fetchFilterSlots
 
   // 날짜 관련 로직 제거
-  const filterSlots = adSlots; // API에서 받아온 데이터를 그대로 사용
+  //const filterSlots = adSlots;
+  const filterSlots = adSlots.filter((slot) => {
+    const numericPrice = parseInt(slot.avgPrice.replace(/[^\d]/g, ''), 10);
+    return numericPrice <= budget;
+  }); // API에서 받아온 데이터를 그대로 사용
   
 
   const pageCount = Math.ceil(filterSlots.length / itemsPerPage);
