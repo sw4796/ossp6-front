@@ -163,13 +163,6 @@ function Adinfo() {
             <p className="mt-2 text-sm text-gray-600">
               광고 자리에 대한 상세 정보입니다.
             </p>
-            {/* 입찰 참여하기 버튼 추가 */}
-            <button
-              onClick={handleBidClick}
-              className="mt-4 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              입찰 참여하기
-            </button>
           </div>
 
           {summaryData ? (

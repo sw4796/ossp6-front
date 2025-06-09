@@ -166,7 +166,7 @@ function MyadsAdvertiser() {
   const currentPageList = ads.slice(current, current + itemsPerPage);
 
   const handleAdClick = (adId) => {
-    navigate(`/ad-serving?adId=${adId}`);
+    navigate(`/ad-serving/${adId}`);
   };
 
   return (
