@@ -81,7 +81,8 @@ export default function AdBidPage() {
     if (remain > 0 && total > 0) {
       const hours = Math.floor(remain / (1000 * 60 * 60));
       const minutes = Math.floor((remain % (1000 * 60 * 60)) / (1000 * 60));
-      bidEndText = `${hours}시간 ${minutes}분 남음`;
+      const seconds = Math.floor((remain % (1000 * 60)) / 1000);
+      bidEndText = `${hours}시간 ${minutes}분 ${seconds}초 남음`;
       bidEndPercent = Math.max(
         0,
         Math.min(100, ((total - remain) / total) * 100)
