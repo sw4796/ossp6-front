@@ -115,6 +115,26 @@ const getBidStatusLabel = (status) => {
       return '-';
   }
 };
+
+// 문자열/숫자 bidStatus를 enum 숫자로 변환
+const normalizeBidStatus = (status) => {
+  if (typeof status === 'number') return status;
+  switch (status) {
+    case '입찰 전':
+      return 0;
+    case '입찰 중':
+      return 1;
+    case '입찰 성공':
+    case '낙찰':
+      return 2;
+    case '입찰 실패':
+    case '낙찰실패':
+      return 3;
+    default:
+      return 0;
+  }
+};
+
 // 입찰 상태별 스타일 클래스
 const getBidStatusClass = (status) => {
   switch (status) {
@@ -158,28 +178,9 @@ function MyadsAdvertiser() {
       const res = await getMyads();
       if (res.success) {
         const mappedAds = res.data.adList.map((ad, index) => {
-          let status = ad.bidStatus;
-          // 문자열로 들어오는 경우 enum 숫자로 변환
-          if (typeof status === 'string') {
-            switch (status) {
-              case '입찰 전':
-                status = 0;
-                break;
-              case '입찰 중':
-                status = 1;
-                break;
-              case '입찰 성공':
-              case '낙찰':
-                status = 2;
-                break;
-              case '입찰 실패':
-              case '낙찰실패':
-                status = 3;
-                break;
-              default:
-                status = 0;
-            }
-          }
+          const status = normalizeBidStatus(ad.bidStatus);
+          // 디버깅용 콘솔 로그
+          console.log('ad:', ad, 'normalized status:', status);
           return {
             id: ad.adId ?? `ad${index}`,
             name: ad.adName || '-',

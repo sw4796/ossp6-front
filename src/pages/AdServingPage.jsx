@@ -40,8 +40,7 @@ function AdServingPage() {
           ...slot,
           name: slot.adSlotName,
           price: slot.bidMoney,
-          status:
-            slot.bidStatus === 0 ? '입찰' : slot.bidStatus === 1 ? '낙찰' : '-',
+          status: slot.bidStatus, // 숫자 그대로 전달
           // exposeTime, Startdate, Enddate 등은 필요시 추가
         }))
       : [];
@@ -165,12 +164,18 @@ function AdServingPage() {
       })
     : filteredData;
 
+  // 내림차순 정렬(최신 데이터가 위로)
+  const sortedTableData = [...tableData].reverse();
+
   const ITEMS_PER_PAGE = 10;
   const [page, setPage] = useState(0);
 
   // 페이지네이션 데이터
-  const totalPages = Math.max(1, Math.ceil(tableData.length / ITEMS_PER_PAGE));
-  const pagedData = tableData.slice(
+  const totalPages = Math.max(
+    1,
+    Math.ceil(sortedTableData.length / ITEMS_PER_PAGE)
+  );
+  const pagedData = sortedTableData.slice(
     page * ITEMS_PER_PAGE,
     (page + 1) * ITEMS_PER_PAGE
   );
