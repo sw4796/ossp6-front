@@ -169,12 +169,12 @@ body,
 }
 
 .rc-slider-track {
-  background-color: #4B89DC;
+  background-color: #4b89dc;
   height: 5px;
 }
 
 .rc-slider-handle {
-  border: 8px solid #4B89DC;
+  border: 8px solid #4b89dc;
   background-color: white;
 }
 
@@ -194,19 +194,29 @@ body,
   display: inline-block;
 }
 
-.status-bidding {
-  color: #854d0e;
-  background-color: #fef9c3; /*입찰중*/
+.status-before {
+  color: #1e293b;
+  background-color: #e0e7ef; /* 입찰 전 */
 }
 
-.status-done {
+.status-bidding {
+  color: #854d0e;
+  background-color: #fef9c3; /* 입찰 중/진행중 */
+}
+
+.status-success {
+  color: #166534;
+  background-color: #dcfce7; /* 입찰 성공 */
+}
+
+.status-fail {
   color: #991b1b;
-  background-color: #fee2e2; /*입찰완료*/
+  background-color: #fee2e2; /* 입찰 실패 */
 }
 
 .status-active {
-  color: #166534;
-  background-color: #dcfce7; /*게재중*/
+  color: #2563eb;
+  background-color: #dbeafe; /* 광고 게재중 */
 }
 
 .pagination {

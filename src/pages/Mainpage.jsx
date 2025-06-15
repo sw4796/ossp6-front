@@ -8,7 +8,7 @@ import '../App.css';
 import adslots from '../data/adslots';
 import adslotInfo from '../data/adslotInfo';
 import Header from '../components/Header';
-import {getAdSlots} from '../api/getAds';
+import { getAdSlots } from '../api/getAds';
 
 const region = [
   '서울',
@@ -113,6 +113,22 @@ const CheckboxGroupSection = ({ items, selectItem, setItem }) => {
   );
 };
 
+// 입찰 상태 라벨 함수
+const getBidStatusLabel = (status) => {
+  switch (status) {
+    case 0:
+      return '입찰 전';
+    case 1:
+      return '입찰 중';
+    case 2:
+      return '입찰 성공';
+    case 3:
+      return '입찰 실패';
+    default:
+      return '-';
+  }
+};
+
 const Mainpage = () => {
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
@@ -123,9 +139,14 @@ const Mainpage = () => {
   const [budget, setBudget] = useState(2700000);
   const navigate = useNavigate();
 
-  const fetchFilterSlots = useCallback(async () => { // Wrapped in useCallback
+  const fetchFilterSlots = useCallback(async () => {
+    // Wrapped in useCallback
     let apiBidStatus = null;
-    if (selectadStatus && !selectadStatus.includes('전체') && selectadStatus.length > 0) {
+    if (
+      selectadStatus &&
+      !selectadStatus.includes('전체') &&
+      selectadStatus.length > 0
+    ) {
       const firstSelectedStatus = selectadStatus[0];
       if (firstSelectedStatus === '입찰 전') {
         apiBidStatus = '입찰 전';
@@ -149,7 +170,7 @@ const Mainpage = () => {
         name: slot.SlotName,
         id: slot.adSlotId,
         region: slot.address?.split(' ')[0] || '서울',
-        status: ['입찰 전', '입찰 중', '입찰 종료'][slot.bidStatus] || '입찰 전',
+        status: getBidStatusLabel(slot.bidStatus),
         avgTraffic: `${15000 + idx * 1000}명`,
         avgScore: 80 - idx * 2,
         avgPrice: `₩ ${(1500000 + idx * 100000).toLocaleString()}`,
@@ -169,12 +190,11 @@ const Mainpage = () => {
     const numericPrice = parseInt(slot.avgPrice.replace(/[^\d]/g, ''), 10);
     const matchBudget = numericPrice <= budget;
 
-    const matchStatus = 
-    selectadStatus.includes('전체') || selectadStatus.includes(slot.status);
+    const matchStatus =
+      selectadStatus.includes('전체') || selectadStatus.includes(slot.status);
 
     return matchBudget && matchStatus;
   }); // API에서 받아온 데이터를 그대로 사용
-  
 
   const pageCount = Math.ceil(filterSlots.length / itemsPerPage);
   const current = page * itemsPerPage;
@@ -264,13 +284,13 @@ const Mainpage = () => {
           ))}
           {pageCount > 1 && (
             <ReactPaginate
-            pageCount={pageCount}
-            previousLabel={'<'}
-            nextLabel={'>'}
-            onPageChange={handlePageChange}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-          />
+              pageCount={pageCount}
+              previousLabel={'<'}
+              nextLabel={'>'}
+              onPageChange={handlePageChange}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+            />
           )}
         </Container>
       </Wrapper>

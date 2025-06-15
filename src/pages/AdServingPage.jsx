@@ -85,7 +85,7 @@ function AdServingPage() {
           filteredData.reduce((sum, row) => {
             if (row.exposeTime) {
               const match = row.exposeTime.match(
-                /(\d{2}):(\d{2})~(\d{2}):(\d{2})/
+                /(\d{02}):(\d{02})~(\d{02}):(\d{02})/
               );
               if (match) {
                 const start = parseInt(match[1], 10);
@@ -185,6 +185,22 @@ function AdServingPage() {
   // 광고 자리 클릭 시 adinfo로 이동
   const handleSlotClick = (slotId) => {
     navigate(`/adinfo/${slotId}`);
+  };
+
+  // 입찰 상태 라벨 함수
+  const getBidStatusLabel = (status) => {
+    switch (status) {
+      case 0:
+        return '입찰 전';
+      case 1:
+        return '입찰 중';
+      case 2:
+        return '입찰 성공';
+      case 3:
+        return '입찰 실패';
+      default:
+        return '-';
+    }
   };
 
   // 테이블 컬럼 정의
@@ -319,7 +335,7 @@ function AdServingPage() {
                                   ?.name || row.name}
                               </span>
                             ),
-                            상태: row.status,
+                            상태: getBidStatusLabel(row.status),
                             입찰가: row.price
                               ? `₩${row.price.toLocaleString()}`
                               : '-',

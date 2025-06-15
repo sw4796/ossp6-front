@@ -19,3 +19,8 @@ export const getMyAdDetail = (adId) => api.get(`/ads/my/ad/${adId}`);
 
 // 광고자리 입찰 상세 조회
 export const getAdBidDetail = (adslotId) => api.get(`/ads/bid/${adslotId}/1`);
+
+// 입찰 제출 API
+export const submitBid = (adSlotId, adId, bidData) =>
+  console.log(adSlotId, adId, bidData) ||
+  api.post(`/ads/bid/${adSlotId}/${adId}`, bidData);
