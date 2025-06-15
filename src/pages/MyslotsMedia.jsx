@@ -6,6 +6,8 @@ import '../App.css';
 import { getMyAdSlots } from '../api/getMyAdSlots';
 import ReactPaginate from 'react-paginate';
 import { AuthContext } from '../providers/AuthContext';
+import more_icon from '../assets/icon-dropdown.png';
+import { startBidForAdSlot } from '../api/startBidForAdSlot';
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,6 +119,33 @@ const Textdetail = styled.div`
   font-weight: 400;
 `;
 
+// 광고자리 상태 enum 라벨 매핑 함수
+const getAdSlotStatusLabel = (status) => {
+  switch (status) {
+    case 0:
+      return '입찰 전';
+    case 1:
+      return '입찰 진행중';
+    case 2:
+      return '광고 게재중';
+    default:
+      return '-';
+  }
+};
+// 광고자리 상태별 스타일 클래스
+const getAdSlotStatusClass = (status) => {
+  switch (status) {
+    case 0:
+      return 'status-before'; // 입찰 전
+    case 1:
+      return 'status-bidding'; // 입찰 진행중
+    case 2:
+      return 'status-active'; // 광고 게재중
+    default:
+      return '';
+  }
+};
+
 function MyslotsMedia() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -130,6 +159,7 @@ function MyslotsMedia() {
     totalRevenue: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -155,7 +185,8 @@ function MyslotsMedia() {
             name: slot.adSlotName || '-',
             imageUrl: slot.imageUrl || '',
             // 상태: bidStatus가 null이면 '진행중', 아니면 '게재중지'로 가정
-            status: slot.bidStatus === null ? '진행중' : '게재중지',
+            status:
+              typeof slot.adSlotStatus === 'number' ? slot.adSlotStatus : 0,
             avgTraffic: slot.viewCount ?? 0,
             avgCompetition:
               typeof slot.competition === 'number'
@@ -224,6 +255,7 @@ function MyslotsMedia() {
             <Column>평균 통행량</Column>
             <Column>평균 경쟁률</Column>
             <Column>이번달 매출</Column>
+            <Column></Column> {/* 더보기 아이콘용 빈 컬럼 */}
           </ListHeader>
           {loading ? (
             <div style={{ padding: '40px', textAlign: 'center' }}>
@@ -234,7 +266,7 @@ function MyslotsMedia() {
               광고자리가 없습니다.
             </div>
           ) : (
-            currentPageList.map((slot) => (
+            currentPageList.map((slot, idx) => (
               <List key={slot.id}>
                 <Column>
                   <span
@@ -259,21 +291,52 @@ function MyslotsMedia() {
                 </Column>
                 <Column>
                   <StatusLabel
-                    className={`status-label ${
-                      slot.status === '진행중'
-                        ? 'status-active'
-                        : slot.status === '게재중지'
-                          ? 'status-stop'
-                          : ''
-                    }`}
+                    className={`status-label ${getAdSlotStatusClass(slot.status)}`}
                   >
-                    {slot.status}
+                    {getAdSlotStatusLabel(slot.status)}
                   </StatusLabel>
                 </Column>
                 <Column>{slot.avgTraffic?.toLocaleString() || '-'}</Column>
                 <Column>{slot.avgCompetition || '-'}</Column>
                 <Column>
                   {slot.monthlyRevenue?.toLocaleString() + '원' || '-'}
+                </Column>
+                <Column
+                  style={{
+                    position: 'relative',
+                    width: 40,
+                    textAlign: 'center',
+                  }}
+                >
+                  <button
+                    className="p-2 rounded-full hover:bg-gray-100"
+                    onClick={() => setMenuOpen(menuOpen === idx ? null : idx)}
+                    tabIndex={0}
+                  >
+                    <img
+                      src={more_icon}
+                      alt="더보기"
+                      style={{ width: 20, height: 20 }}
+                    />
+                  </button>
+                  {menuOpen === idx && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-20">
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50"
+                        onClick={async () => {
+                          const res = await startBidForAdSlot(slot.id);
+                          if (res && res.success) {
+                            alert('입찰이 시작되었습니다!');
+                          } else {
+                            alert(res?.error || '입찰 시작에 실패했습니다.');
+                          }
+                          setMenuOpen(null);
+                        }}
+                      >
+                        입찰 시작
+                      </button>
+                    </div>
+                  )}
                 </Column>
               </List>
             ))

@@ -7,7 +7,7 @@ function AdInfoSummary({ data }) {
 
   const handleBidClick = () => {
     if (adslotid) {
-      navigate(`/ad-bid?slotId=${encodeURIComponent(adslotid)}`);
+      navigate(`/ad-bid/${encodeURIComponent(adslotid)}`);
     }
   };
 
@@ -32,15 +32,7 @@ function AdInfoSummary({ data }) {
             {data.period} ~
           </p>
         </div>
-        <div className="flex justify-end items-center">
-          <button
-            className="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-8 py-2 rounded-[8px] font-semibold text-base transition-colors"
-            style={{ minWidth: 180 }}
-            onClick={handleBidClick}
-          >
-            입찰 참여하기
-          </button>
-        </div>
+        <div className="flex justify-end items-center"></div>
       </div>
     </div>
   );

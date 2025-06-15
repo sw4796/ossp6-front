@@ -136,7 +136,7 @@ function Adinfo() {
   // 입찰 참여하기 버튼 클릭 시 해당 광고자리의 입찰 페이지로 이동
   const handleBidClick = () => {
     if (adslotid) {
-      navigate(`/ad-bid?slotId=${encodeURIComponent(adslotid)}`);
+      navigate(`/ad-bid/${encodeURIComponent(adslotid)}`);
     }
   };
 
@@ -146,7 +146,9 @@ function Adinfo() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
         {/* <Header />  네비게이션 바 제거 */}
-        <p className="text-xl text-gray-700 mt-10">데이터를 불러오는 중입니다...</p>
+        <p className="text-xl text-gray-700 mt-10">
+          데이터를 불러오는 중입니다...
+        </p>
       </div>
     );
   }
@@ -165,6 +167,17 @@ function Adinfo() {
             </p>
           </div>
 
+          {/* 입찰 참여하기 버튼 항상 노출 */}
+          <div className="flex justify-end mb-4">
+            <button
+              className="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-8 py-2 rounded-[8px] font-semibold text-base transition-colors"
+              style={{ minWidth: 180 }}
+              onClick={handleBidClick}
+            >
+              입찰 참여하기
+            </button>
+          </div>
+
           {summaryData ? (
             <AdInfoSummary data={summaryData} />
           ) : (
@@ -180,9 +193,10 @@ function Adinfo() {
               효과 정보가 존재하지 않습니다.
             </div>
           )}
-          
-          {chartData && 
-           (chartData.trafficDataByUnit[unit]?.x?.length > 0 || chartData.exposureData?.length > 0) ? (
+
+          {chartData &&
+          (chartData.trafficDataByUnit[unit]?.x?.length > 0 ||
+            chartData.exposureData?.length > 0) ? (
             <AdInfoChartSection
               chartData={chartData}
               unit={unit}
@@ -207,10 +221,11 @@ function Adinfo() {
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold mb-2">응시율 데이터</h2>
-              {effectData && effectData.length > 0 && effectData[0]?.value !== undefined && !isNaN(parseInt(effectData[0].value)) ? (
-                <GazeRateChart
-                  value={parseInt(effectData[0].value) || 0}
-                />
+              {effectData &&
+              effectData.length > 0 &&
+              effectData[0]?.value !== undefined &&
+              !isNaN(parseInt(effectData[0].value)) ? (
+                <GazeRateChart value={parseInt(effectData[0].value) || 0} />
               ) : (
                 <p className="text-center text-gray-500 py-10">
                   데이터가 존재하지 않습니다.
