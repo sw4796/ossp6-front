@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, use } from 'react';
 import Header from '../components/Header';
 import '../App.css';
 import ads from '../data/ads';
 import ReactPaginate from 'react-paginate';
 import { AuthContext } from '../providers/AuthContext';
+import {getMyads} from '../api/getMyads';
 
 const Wrapper = styled.div`
   display: flex;
@@ -104,31 +105,68 @@ function MyadsAdvertiser() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
+  const [ads, setAds] = useState([]);
+  const [stats, setStats] = useState({
+    totalAdCount: 0,
+    completedBidCount: 0,
+    totalViewCount: 0,
+    totalBidMoney: 0,
+  })
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
     }
-    if (user && user.role !== 'advertiser') {
+    if (user && user.role !== 'USER') {
       navigate('/myslots');
     }
   }, [user, navigate]);
 
-  const list = ads.filter((ad) => ad.ownerId === user?.id);
-  const totalCount = list.length;
-  const activeCount = list.filter((ad) => ad.status === '게재중').length;
-  const totalTraffic = list.reduce((sum, ad) => sum + (ad.traffic || 0), 0);
-  const totalPrice = list.reduce((sum, ad) => sum + (ad.price || 0), 0);
-
-  const handlePageChange = (page) => {
-    setPage(page.selected);
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 0: return '입찰중';
+      case 1: return '입찰완료';
+      case 2: return '게재중';
+      default: return '-';
+    }
   };
-  const pageCount = Math.ceil(list.length / itemsPerPage);
+
+  useEffect(() => {
+    const fetchAds = async () => {
+      const res = await getMyads();
+      if (res.success) {
+        const mappedAds = res.data.adList.map((ad, index) => ({
+        id: ad.adId ?? `ad${index}`, 
+        name: ad.adName || '-',
+        status: ad.bidStatus,  
+        traffic: ad.viewCount ?? 0,
+        score: ad.exposureScore ?? 0,
+        price: ad.bid ?? 0,
+        imageUrl: ad.adImageUrl || '',
+      }));
+
+      setAds(mappedAds);
+
+      setStats({
+        totalAdCount: res.data.totalAdCount,
+        completedBidCount: res.data.completedBidCount,
+        totalViewCount: res.data.totalViewCount,
+        totalBidMoney: res.data.totalBidMoney,
+      });
+      }
+    };
+    fetchAds();
+  }, []);
+
+  const handlePageChange = ({selected}) => {
+    setPage(selected);
+  };
+  const pageCount = Math.ceil(ads.length / itemsPerPage);
   const current = page * itemsPerPage;
-  const currentPageList = list.slice(current, current + itemsPerPage);
+  const currentPageList = ads.slice(current, current + itemsPerPage);
 
   const handleAdClick = (adId) => {
-    navigate(`/ad-serving?adId=${adId}`);
+    navigate(`/ad-serving/${adId}`);
   };
 
   return (
@@ -139,17 +177,17 @@ function MyadsAdvertiser() {
           <Container1>
             <Title>활성 광고 수</Title>
             <Text>
-              {activeCount}
-              <Textdetail>&nbsp; / {totalCount}</Textdetail>
+              {stats.completedBidCount}
+              <Textdetail>&nbsp; / {stats.totalAdCount}</Textdetail>
             </Text>
           </Container1>
           <Container1>
             <Title>총 예상 통행량</Title>
-            <Text>{totalTraffic?.toLocaleString() || '-'}</Text>
+            <Text>{stats.totalViewCount !== null ? stats.totalViewCount.toLocaleString() : '-'}</Text>
           </Container1>
           <Container1>
             <Title>총 비용</Title>
-            <Text>{totalPrice?.toLocaleString() + '원' || '-'}</Text>
+            <Text>{stats.totalBidMoney !== null ? stats.totalBidMoney.toLocaleString() + '원' : '-'}</Text>
           </Container1>
         </RowWrapper>
         <Container>
@@ -161,9 +199,15 @@ function MyadsAdvertiser() {
             <Column>노출 점수</Column>
             <Column>가격</Column>
           </ListHeader>
-          {currentPageList.map((ad, index) => (
-            <List key={index}>
+          {currentPageList.map((ad) => (
+            <List key={ad.id}>
               <Column>
+              <div style={{display: 'flex', alignItems: 'center'}}>
+                <img 
+                src = {ad.imageUrl}
+                alt = {ad.name}
+                style={{width: '35px', height: 'auto', borderRadius: '5px'}}
+                />
                 <span
                   style={{
                     color: 'black',
@@ -171,7 +215,7 @@ function MyadsAdvertiser() {
                     textDecoration: 'none',
                     transition: 'color 0.15s',
                   }}
-                  onClick={() => handleAdClick(ad.id)}
+                  onClick={() => ad.id && handleAdClick(ad.id)}
                   onMouseOver={(e) => {
                     e.currentTarget.style.color = '#2563eb';
                     e.currentTarget.style.textDecoration = 'underline';
@@ -183,28 +227,30 @@ function MyadsAdvertiser() {
                 >
                   {ad.name || '-'}
                 </span>
+                </div>
               </Column>
               <Column>
                 <span
                   className={`status-label ${
-                    ad.status === '입찰중'
+                    ad.status === 0
                       ? 'status-bidding'
-                      : ad.status === '입찰완료'
+                      : ad.status === 1
                         ? 'status-done'
-                        : ad.status === '게재중'
+                        : ad.status === 2
                           ? 'status-active'
                           : ''
                   }`}
                 >
-                  {ad.status}
+                  {getStatusLabel(ad.status)}
                 </span>
               </Column>
-              <Column>{ad.traffic?.toLocaleString() || '-'}</Column>
+              <Column>{ad.traffic != null ? ad.traffic.toLocaleString():'-'}</Column>
               <Column>{ad.score ?? '-'}</Column>
               <Column>{ad.price?.toLocaleString() + '원' || '-'}</Column>
             </List>
           ))}
-          <ReactPaginate
+          {pageCount > 1 && (
+            <ReactPaginate
             pageCount={pageCount}
             previousLabel={'<'}
             nextLabel={'>'}
@@ -212,6 +258,7 @@ function MyadsAdvertiser() {
             containerClassName={'pagination'}
             activeClassName={'active'}
           />
+          )}
         </Container>
         <Container>
           <Title>최근 활동</Title>

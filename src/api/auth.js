@@ -63,7 +63,7 @@ export const logout = () => {
 
 // 회원가입
 export const signup = async (id, password, rePassword, nickname, role) => {
-  const authStatus = role === 'advertiser' ? 'USER' : 'ADMIN';
+  const authStatus = role;
   const res = await api.post('/login/signup', {
     id,
     password,
@@ -78,5 +78,21 @@ export const signup = async (id, password, rePassword, nickname, role) => {
     throw new Error('회원가입 실패');
   }
 };
+
+export const getUSerToken = () => {
+  const token = localStorage.getItem('jwtToken');
+  if(!token) return null;
+
+  try{
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    return{
+      userId: decoded.userId,
+      role: decoded.auth,
+    };
+  }catch(e){
+    console.error(e);
+    return null;
+  }
+}
 
 export default api;

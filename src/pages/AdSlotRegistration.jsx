@@ -233,6 +233,7 @@ function AdSlotRegistration() {
     try {
       const res = await registAdSlot(dto, files[0]);
       if (res.data && res.data.success == true && res.data.error == null) {
+        console.log('광고 자리 등록 성공:', res.data);
         alert('광고 자리가 성공적으로 등록되었습니다.');
         navigate('/');
       } else {

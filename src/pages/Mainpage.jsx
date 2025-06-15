@@ -1,16 +1,14 @@
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { useEffect, useState, useCallback } from 'react'; // Added useCallback
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import ReactPaginate from 'react-paginate';
 import '../App.css';
-import ads from '../data/ads';
 import adslots from '../data/adslots';
 import adslotInfo from '../data/adslotInfo';
 import Header from '../components/Header';
+import {getAdSlots} from '../api/getAds';
 
 const region = [
   '서울',
@@ -27,7 +25,7 @@ const region = [
   '전남',
   '전체',
 ];
-const adStatus = ['전체', '입찰중', '게재중', '입찰완료'];
+const adStatus = ['전체', '입찰 전', '입찰 중', '입찰 완료'];
 
 const Wrapper = styled.div`
   display: flex;
@@ -119,46 +117,76 @@ const Mainpage = () => {
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
 
+  const [adSlots, setAdslots] = useState([]);
   const [selectRegion, setRegion] = useState(['전체']);
   const [selectadStatus, setadStatus] = useState(['전체']);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [budget, setBudget] = useState(2700000);
   const navigate = useNavigate();
 
-  // 광고자리 리스트에 평균 통행량, 평균 노출점수, 평균 낙찰가 임의 데이터 추가
-  const adslotList = adslots.map((slot, idx) => {
-    const info = adslotInfo[slot.id] || {};
-    // 예시: 평균 통행량, 평균 노출점수, 평균 낙찰가
-    return {
-      ...slot,
-      avgTraffic: info.avgExposure || `${15000 + idx * 1000}명`,
-      avgScore: info.avgScore || 80 - idx * 2,
-      avgPrice: info.price || `₩ ${(1500000 + idx * 100000).toLocaleString()}`,
-    };
-  });
+  const fetchFilterSlots = useCallback(async () => { // Wrapped in useCallback
+    let apiBidStatus = null;
+    if (selectadStatus && !selectadStatus.includes('전체') && selectadStatus.length > 0) {
+      const firstSelectedStatus = selectadStatus[0];
+      if (firstSelectedStatus === '입찰 전') {
+        apiBidStatus = '입찰 전';
+      } else if (firstSelectedStatus === '입찰 중') {
+        apiBidStatus = '입찰 중';
+      } else if (firstSelectedStatus === '입찰 완료') {
+        apiBidStatus = '입찰 종료';
+      }
+    }
 
-  // 필터 적용 (지역, 상태 등)
-  const filterSlots = adslotList.filter((slot) => {
-    const matchRegion =
-      selectRegion.length === 0 ||
-      selectRegion.includes(slot.region) ||
-      selectRegion.includes('전체');
-    // 광고자리에는 상태가 없으므로 상태 필터는 생략 또는 필요시 info.status 사용
-    return matchRegion;
-  });
+    const body = {
+      regions: selectRegion.includes('전체') ? null : selectRegion,
+      bidStatus: apiBidStatus,
+      price: budget,
+    };
+
+    const res = await getAdSlots(body); // POST 요청
+    if (res?.success && Array.isArray(res.data)) {
+      const SlotData = res.data.map((slot, idx) => ({
+        ...slot,
+        name: slot.SlotName,
+        id: slot.adSlotId,
+        region: slot.address?.split(' ')[0] || '서울',
+        status: ['입찰 전', '입찰 중', '입찰 종료'][slot.bidStatus] || '입찰 전',
+        avgTraffic: `${15000 + idx * 1000}명`,
+        avgScore: 80 - idx * 2,
+        avgPrice: `₩ ${(1500000 + idx * 100000).toLocaleString()}`,
+      }));
+
+      setAdslots(SlotData);
+    }
+  }, [selectRegion, selectadStatus, budget]); // Dependencies for useCallback
+
+  useEffect(() => {
+    fetchFilterSlots();
+  }, [fetchFilterSlots]); // useEffect now depends on the memoized fetchFilterSlots
+
+  // 날짜 관련 로직 제거
+  //const filterSlots = adSlots;
+  const filterSlots = adSlots.filter((slot) => {
+    const numericPrice = parseInt(slot.avgPrice.replace(/[^\d]/g, ''), 10);
+    const matchBudget = numericPrice <= budget;
+
+    const matchStatus = 
+    selectadStatus.includes('전체') || selectadStatus.includes(slot.status);
+
+    return matchBudget && matchStatus;
+  }); // API에서 받아온 데이터를 그대로 사용
+  
 
   const pageCount = Math.ceil(filterSlots.length / itemsPerPage);
   const current = page * itemsPerPage;
   const currentPageSlots = filterSlots.slice(current, current + itemsPerPage);
 
-  const handlePageChange = (page) => {
-    setPage(page.selected);
+  const handlePageChange = (e) => {
+    setPage(e.selected);
   };
 
   // 광고자리 클릭 시 Adinfo로 이동
-  const handleSlotClick = (slotId) => {
-    navigate(`/adinfo/${slotId}`);
+  const handleSlotClick = (id) => {
+    navigate(`/adinfo/${id}`);
   };
 
   return (
@@ -183,28 +211,7 @@ const Mainpage = () => {
             setItem={setadStatus}
             label="광고 상태"
           />
-          <Title>기간</Title>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              selectsStart
-              startDate={startDate}
-              endDate={endDate}
-              placeholderText="시작일"
-              dateFormat="yyyy-MM-dd"
-            />
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              selectsEnd
-              startDate={startDate}
-              endDate={endDate}
-              minDate={startDate}
-              placeholderText="종료일"
-              dateFormat="yyyy-MM-dd"
-            />
-          </div>
+          {/* 기간 선택 UI 제거 */}
           <Title>예산 범위</Title>
           <Slider
             min={0}
@@ -226,8 +233,8 @@ const Mainpage = () => {
             <Column>평균 노출점수</Column>
             <Column>평균 낙찰가</Column>
           </ListHeader>
-          {currentPageSlots.map((slot, index) => (
-            <List key={index}>
+          {currentPageSlots.map((slot) => (
+            <List key={slot.id}>
               <Column>
                 <span
                   style={{
@@ -255,7 +262,8 @@ const Mainpage = () => {
               <Column>{slot.avgPrice}</Column>
             </List>
           ))}
-          <ReactPaginate
+          {pageCount > 1 && (
+            <ReactPaginate
             pageCount={pageCount}
             previousLabel={'<'}
             nextLabel={'>'}
@@ -263,6 +271,7 @@ const Mainpage = () => {
             containerClassName={'pagination'}
             activeClassName={'active'}
           />
+          )}
         </Container>
       </Wrapper>
     </>
