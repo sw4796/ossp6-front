@@ -312,12 +312,6 @@ export default function AdBidPage() {
                 </div>
                 <div className="flex justify-end">
                   <button
-                    className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-button font-medium transition-colors mr-3 whitespace-nowrap"
-                    type="button"
-                  >
-                    임시 저장
-                  </button>
-                  <button
                     id="submitBidBtn"
                     className={`bg-indigo-600 hover:bg-primary/90 text-white py-2 px-4 rounded-button font-medium transition-colors whitespace-nowrap ${canSubmit ? '' : 'opacity-50 cursor-not-allowed'}`}
                     type="button"
