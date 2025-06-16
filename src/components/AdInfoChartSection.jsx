@@ -197,7 +197,7 @@ function ExposureScoreChart({ data, hours, yAxis, title }) {
         left: 'center',
         bottom: -10,
         inRange: {
-          color: ['rgba(141, 211, 199, 0.3)', 'rgba(87, 181, 231, 1)'],
+          color: ['#FFCDD2', '#E53935'], // 연한 빨강에서 진한 빨강으로 변경
         },
         textStyle: { color: '#6b7280' },
       },
