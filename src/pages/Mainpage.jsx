@@ -113,17 +113,15 @@ const CheckboxGroupSection = ({ items, selectItem, setItem }) => {
   );
 };
 
-// 입찰 상태 라벨 함수
-const getBidStatusLabel = (status) => {
+// 광고자리 상태 라벨 함수 (AdSlotStatus Enum에 맞춤, 숫자 매핑)
+const getAdSlotStatusLabel = (status) => {
   switch (status) {
     case 0:
       return '입찰 전';
     case 1:
-      return '입찰 중';
+      return '입찰 진행중';
     case 2:
-      return '입찰 성공';
-    case 3:
-      return '입찰 실패';
+      return '광고 게재중';
     default:
       return '-';
   }
@@ -165,17 +163,21 @@ const Mainpage = () => {
 
     const res = await getAdSlots(body); // POST 요청
     if (res?.success && Array.isArray(res.data)) {
-      const SlotData = res.data.map((slot, idx) => ({
-        ...slot,
-        name: slot.SlotName,
-        id: slot.adSlotId,
-        region: slot.address?.split(' ')[0] || '서울',
-        status: getBidStatusLabel(slot.bidStatus),
-        avgTraffic: `${15000 + idx * 1000}명`,
-        avgScore: 80 - idx * 2,
-        avgPrice: `₩ ${(1500000 + idx * 100000).toLocaleString()}`,
-      }));
-
+      const SlotData = res.data.map((slot) => {
+        // bidStatus가 null이면 '-'로, 0/1/2면 상태명으로 변환
+        let statusLabel = '-';
+        if (slot.bidStatus === 0) statusLabel = '입찰 전';
+        else if (slot.bidStatus === 1) statusLabel = '입찰 진행중';
+        else if (slot.bidStatus === 2) statusLabel = '광고 게재중';
+        return {
+          ...slot,
+          name: slot.SlotName,
+          id: slot.adSlotId,
+          address: slot.address,
+          status: statusLabel,
+          avgPrice: `₩ ${(slot.bid || 0).toLocaleString()}`,
+        };
+      });
       setAdslots(SlotData);
     }
   }, [selectRegion, selectadStatus, budget]); // Dependencies for useCallback
@@ -249,8 +251,8 @@ const Mainpage = () => {
           <Title>입찰 광고 보기</Title>
           <ListHeader>
             <Column>광고자리명</Column>
-            <Column>평균 통행량</Column>
-            <Column>평균 노출점수</Column>
+            <Column>주소</Column>
+            <Column>입찰 상태</Column>
             <Column>평균 낙찰가</Column>
           </ListHeader>
           {currentPageSlots.map((slot) => (
@@ -275,10 +277,25 @@ const Mainpage = () => {
                 >
                   {slot.name || '-'}
                 </span>
-                {/* 날짜 제거 */}
               </Column>
-              <Column>{slot.avgTraffic}</Column>
-              <Column>{slot.avgScore}</Column>
+              <Column>{slot.address || '-'}</Column>
+              <Column>
+                {/* 입찰 상태 라벨 스타일 통일 */}
+                <span
+                  className={
+                    slot.status.includes('입찰 전')
+                      ? 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700'
+                      : slot.status.includes('입찰 진행중')
+                      ? 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700'
+                      : slot.status.includes('광고 게재중')
+                      ? 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700'
+                      : 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-500'
+                  }
+                  style={{ minWidth: 80, textAlign: 'center' }}
+                >
+                  {slot.status}
+                </span>
+              </Column>
               <Column>{slot.avgPrice}</Column>
             </List>
           ))}

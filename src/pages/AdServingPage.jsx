@@ -36,13 +36,27 @@ function AdServingPage() {
   // API 데이터 기반으로 filteredData 생성
   const filteredData =
     myAdDetail && myAdDetail.slotList
-      ? myAdDetail.slotList.map((slot) => ({
-          ...slot,
-          name: slot.adSlotName,
-          price: slot.bidMoney,
-          status: slot.bidStatus, // 숫자 그대로 전달
-          // exposeTime, Startdate, Enddate 등은 필요시 추가
-        }))
+      ? myAdDetail.slotList.map((slot) => {
+          // bidStartTime, bidEndTime → 'YYYY-MM-DD HH:mm~HH:mm' 형식으로 변환
+          let exposeTime = '-';
+          if (slot.bidStartTime && slot.bidEndTime) {
+            const start = new Date(slot.bidStartTime);
+            const end = new Date(slot.bidEndTime);
+            const pad = (n) => n.toString().padStart(2, '0');
+            const dateStr = `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
+            const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+            const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+            exposeTime = `${dateStr} ${startTime}~${endTime}`;
+          }
+          return {
+            ...slot,
+            slotId: slot.asSlotId, // 기존 코드 호환
+            name: slot.adSlotName,
+            price: slot.bidMoney,
+            status: slot.bidStatus,
+            exposeTime, // 날짜+시간 포함
+          };
+        })
       : [];
 
   // placeList: 광고자리명 목록 (API 데이터 기반)

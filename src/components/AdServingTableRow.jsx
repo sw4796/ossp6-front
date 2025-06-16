@@ -23,21 +23,21 @@ function AdServingTableRow({ row, columns }) {
   // 상태별 배지 색상 (enum 기준으로 보완)
   let badgeClass =
     'inline-block rounded-[12px] px-2 py-0.5 text-xs font-medium mt-1 leading-[18px] whitespace-nowrap';
-  switch (row.status) {
-    case 0:
-      badgeClass += ' bg-blue-100 text-blue-700'; // 입찰 전
+  switch (row['상태']) {
+    case '입찰 전':
+      badgeClass += ' bg-gray-100 text-gray-700';
       break;
-    case 1:
-      badgeClass += ' bg-yellow-100 text-yellow-700'; // 입찰 중
+    case '입찰 중':
+      badgeClass += ' bg-blue-100 text-blue-700';
       break;
-    case 2:
-      badgeClass += ' bg-green-100 text-green-700'; // 입찰 성공
+    case '입찰 성공':
+      badgeClass += ' bg-green-100 text-green-700';
       break;
-    case 3:
-      badgeClass += ' bg-[#fee2e2] text-[#991b1b]'; // 입찰 실패
+    case '입찰 실패':
+      badgeClass += ' bg-red-100 text-red-700';
       break;
     default:
-      badgeClass += ' bg-gray-100 text-gray-700';
+      badgeClass += ' bg-gray-200 text-gray-500';
   }
 
   return (

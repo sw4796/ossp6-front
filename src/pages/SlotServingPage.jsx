@@ -90,8 +90,10 @@ function SlotServingPage() {
   const [page, setPage] = useState(0);
 
   // 페이지네이션 데이터
-  const totalPages = Math.max(1, Math.ceil(tableData.length / ITEMS_PER_PAGE));
-  const pagedData = tableData.slice(
+  // 최신 데이터가 위로 오도록 역순 정렬
+  const reversedTableData = [...tableData].reverse();
+  const totalPages = Math.max(1, Math.ceil(reversedTableData.length / ITEMS_PER_PAGE));
+  const pagedData = reversedTableData.slice(
     page * ITEMS_PER_PAGE,
     (page + 1) * ITEMS_PER_PAGE
   );
@@ -304,35 +306,7 @@ function SlotServingPage() {
                               }}
                               columns={columns}
                             />
-                            {/* 더보기 아이콘 및 드롭다운 메뉴 */}
-                            <div className="absolute top-1/2 right-2 -translate-y-1/2 z-10">
-                              <button
-                                className="p-2 rounded-full hover:bg-gray-100"
-                                onClick={() =>
-                                  setMenuOpen(menuOpen === idx ? null : idx)
-                                }
-                                tabIndex={0}
-                              >
-                                <img
-                                  src={more_icon}
-                                  alt="더보기"
-                                  style={{ width: 20, height: 20 }}
-                                />
-                              </button>
-                              {menuOpen === idx && (
-                                <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
-                                  <button
-                                    className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50"
-                                    onClick={() => {
-                                      // TODO: 입찰 시작 동작 연결 (예: 입찰 페이지 이동)
-                                      setMenuOpen(null);
-                                    }}
-                                  >
-                                    입찰 시작
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                            
                           </div>
                         );
                       })
