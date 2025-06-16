@@ -9,6 +9,7 @@ import adslots from '../data/adslots';
 import dropdown_icon from '../assets/icon-dropdown.png';
 import left_arrow from '../assets/left-arrow.png';
 import right_arrow from '../assets/right-arrow.png';
+import more_icon from '../assets/icon-dropdown.png'; // 더보기 아이콘(적절한 아이콘으로 교체 가능)
 
 function SlotServingPage() {
   const { slotId } = useParams();
@@ -140,6 +141,24 @@ function SlotServingPage() {
     },
   ];
 
+  // 입찰 상태 라벨 함수
+  const getBidStatusLabel = (status) => {
+    switch (status) {
+      case 0:
+        return '입찰 전';
+      case 1:
+        return '입찰 중';
+      case 2:
+        return '입찰 성공';
+      case 3:
+        return '입찰 실패';
+      default:
+        return '-';
+    }
+  };
+
+  const [menuOpen, setMenuOpen] = useState(null);
+
   return (
     <>
       <Header />
@@ -267,24 +286,54 @@ function SlotServingPage() {
                           else status = '진행중';
                         }
                         return (
-                          <AdServingTableRow
-                            key={idx}
-                            row={{
-                              광고명:
-                                row.adName ||
-                                ads.find((a) => a.id === row.adId)?.name ||
-                                row.name,
-                              상태: status,
-                              낙찰가격: row.price
-                                ? `₩${row.price.toLocaleString()}`
-                                : '-',
-                              노출일시:
-                                row.exposeTime ||
-                                row.Startdate + ' ~ ' + row.Enddate,
-                              status, // for badge color
-                            }}
-                            columns={columns}
-                          />
+                          <div key={idx} className="relative group">
+                            <AdServingTableRow
+                              row={{
+                                광고명:
+                                  row.adName ||
+                                  ads.find((a) => a.id === row.adId)?.name ||
+                                  row.name,
+                                상태: getBidStatusLabel(row.bidStatus),
+                                낙찰가격: row.price
+                                  ? `₩${row.price.toLocaleString()}`
+                                  : '-',
+                                노출일시:
+                                  row.exposeTime ||
+                                  row.Startdate + ' ~ ' + row.Enddate,
+                                status, // for badge color
+                              }}
+                              columns={columns}
+                            />
+                            {/* 더보기 아이콘 및 드롭다운 메뉴 */}
+                            <div className="absolute top-1/2 right-2 -translate-y-1/2 z-10">
+                              <button
+                                className="p-2 rounded-full hover:bg-gray-100"
+                                onClick={() =>
+                                  setMenuOpen(menuOpen === idx ? null : idx)
+                                }
+                                tabIndex={0}
+                              >
+                                <img
+                                  src={more_icon}
+                                  alt="더보기"
+                                  style={{ width: 20, height: 20 }}
+                                />
+                              </button>
+                              {menuOpen === idx && (
+                                <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
+                                  <button
+                                    className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50"
+                                    onClick={() => {
+                                      // TODO: 입찰 시작 동작 연결 (예: 입찰 페이지 이동)
+                                      setMenuOpen(null);
+                                    }}
+                                  >
+                                    입찰 시작
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         );
                       })
                     )}

@@ -6,7 +6,7 @@ const myads = [
     slotId: 'slot1',
     name: '강남역 2번 출구',
     adName: '여름 신상 화장품 런칭 캠페인',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 123054,
     score: 85,
     price: 1500000,
@@ -22,7 +22,7 @@ const myads = [
     slotId: 'slot1',
     name: '강남역 2번 출구',
     adName: '여름 신상 화장품 런칭 캠페인',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 123054,
     score: 85,
     price: 1550000,
@@ -38,7 +38,7 @@ const myads = [
     slotId: 'slot1',
     name: '강남역 2번 출구',
     adName: '여름 신상 화장품 런칭 캠페인',
-    status: '낙찰실패',
+    status: 3, // 낙찰실패
     traffic: 123054,
     score: 85,
     price: 1600000,
@@ -54,7 +54,7 @@ const myads = [
     slotId: 'slot6',
     name: '광주역 3번 출구',
     adName: '여름철 건강기능식품 캠페인',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 60000,
     score: 65,
     price: 900000,
@@ -69,7 +69,7 @@ const myads = [
     slotId: 'slot8',
     name: '부산역 5번 출구',
     adName: '프리미엄 세탁세제 광고',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 130000,
     score: 88,
     price: 1700000,
@@ -84,7 +84,7 @@ const myads = [
     slotId: 'slot10',
     name: '창원역 1번 출구',
     adName: '프리미엄 가구 브랜드 캠페인',
-    status: '낙찰실패',
+    status: 3, // 낙찰실패
     traffic: 40000,
     score: 55,
     price: 700000,
@@ -99,7 +99,7 @@ const myads = [
     slotId: 'slot2',
     name: '강남역 2번 출구',
     adName: '여름 신상 화장품 런칭 캠페인',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 123054,
     score: 85,
     price: 1550000,
@@ -114,7 +114,7 @@ const myads = [
     slotId: 'slot5',
     name: '홍대입구역 9번 출구',
     adName: '여성 패션 신상품 출시',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 145328,
     score: 91,
     price: 1800000,
@@ -129,7 +129,7 @@ const myads = [
     slotId: 'slot7',
     name: '신촌역 2번 출구',
     adName: '프리미엄 커피 신제품 광고',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 112654,
     score: 78,
     price: 1400000,
@@ -144,7 +144,7 @@ const myads = [
     slotId: 'slot9',
     name: '부산역 5번 출구',
     adName: '프리미엄 세탁세제 광고',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 130000,
     score: 88,
     price: 1750000,
@@ -161,7 +161,7 @@ const myads = [
     slotId: 'slot2',
     name: '을지로 4가역',
     adName: '제로 칼로리 탄산음료 프로모션',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 98742,
     score: 72,
     price: 1200000,
@@ -177,7 +177,7 @@ const myads = [
     slotId: 'slot2',
     name: '을지로 4가역',
     adName: '제로 칼로리 탄산음료 프로모션',
-    status: '낙찰실패',
+    status: 3, // 낙찰실패
     traffic: 98742,
     score: 72,
     price: 1250000,
@@ -193,7 +193,7 @@ const myads = [
     slotId: 'slot7',
     name: '전주역 1번 출구',
     adName: '여행사 여름휴가 프로모션',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 50000,
     score: 60,
     price: 850000,
@@ -208,7 +208,7 @@ const myads = [
     slotId: 'slot9',
     name: '대구역 2번 출구',
     adName: '자동차 신차 출시 이벤트',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 90000,
     score: 75,
     price: 1300000,
@@ -223,7 +223,7 @@ const myads = [
     slotId: 'slot1',
     name: '을지로 4가역',
     adName: '제로 칼로리 탄산음료 프로모션',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 98742,
     score: 72,
     price: 1250000,
@@ -238,7 +238,7 @@ const myads = [
     slotId: 'slot3',
     name: '수원역 1번 출구',
     adName: '스마트폰 신제품 런칭',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 80000,
     score: 70,
     price: 1150000,
@@ -253,7 +253,7 @@ const myads = [
     slotId: 'slot6',
     name: '전주역 1번 출구',
     adName: '여행사 여름휴가 프로모션',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 50000,
     score: 60,
     price: 900000,
@@ -268,7 +268,7 @@ const myads = [
     slotId: 'slot8',
     name: '대구역 2번 출구',
     adName: '자동차 신차 출시 이벤트',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 90000,
     score: 75,
     price: 1350000,
@@ -283,7 +283,7 @@ const myads = [
     slotId: 'slot4',
     name: '수원역 1번 출구',
     adName: '스마트폰 신제품 런칭',
-    status: '진행중',
+    status: 1, // 진행중
     traffic: 80000,
     score: 70,
     price: 1120000,
@@ -298,7 +298,7 @@ const myads = [
     slotId: 'slot10',
     name: '전주역 1번 출구',
     adName: '여행사 여름휴가 프로모션',
-    status: '낙찰',
+    status: 2, // 낙찰
     traffic: 50000,
     score: 60,
     price: 870000,

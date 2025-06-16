@@ -40,20 +40,36 @@ const Header = () => {
           광고 입찰
         </Link>
         {user && user.role === 'USER' && (
-          <Link
-            to="/myads"
-            className={`main-label ${isActive('/myads') ? 'active' : ''}`}
-          >
-            내 광고
-          </Link>
+          <>
+            <Link
+              to="/myads"
+              className={`main-label ${isActive('/myads') ? 'active' : ''}`}
+            >
+              내 광고
+            </Link>
+            <Link
+              to="/ad-registration"
+              className={`main-label ${isActive('/ad-registration') ? 'active' : ''}`}
+            >
+              광고 등록
+            </Link>
+          </>
         )}
         {user && user.role === 'ADMIN' && (
-          <Link
-            to="/myslots"
-            className={`main-label ${isActive('/myslots') ? 'active' : ''}`}
-          >
-            내 광고자리
-          </Link>
+          <>
+            <Link
+              to="/myslots"
+              className={`main-label ${isActive('/myslots') ? 'active' : ''}`}
+            >
+              내 광고자리
+            </Link>
+            <Link
+              to="/ad-slot-registration"
+              className={`main-label ${isActive('/ad-slot-registration') ? 'active' : ''}`}
+            >
+              광고 자리 등록
+            </Link>
+          </>
         )}
         {!user && (
           <Link

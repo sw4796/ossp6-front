@@ -40,8 +40,7 @@ function AdServingPage() {
           ...slot,
           name: slot.adSlotName,
           price: slot.bidMoney,
-          status:
-            slot.bidStatus === 0 ? '입찰' : slot.bidStatus === 1 ? '낙찰' : '-',
+          status: slot.bidStatus, // 숫자 그대로 전달
           // exposeTime, Startdate, Enddate 등은 필요시 추가
         }))
       : [];
@@ -85,7 +84,7 @@ function AdServingPage() {
           filteredData.reduce((sum, row) => {
             if (row.exposeTime) {
               const match = row.exposeTime.match(
-                /(\d{2}):(\d{2})~(\d{2}):(\d{2})/
+                /(\d{02}):(\d{02})~(\d{02}):(\d{02})/
               );
               if (match) {
                 const start = parseInt(match[1], 10);
@@ -165,12 +164,18 @@ function AdServingPage() {
       })
     : filteredData;
 
+  // 내림차순 정렬(최신 데이터가 위로)
+  const sortedTableData = [...tableData].reverse();
+
   const ITEMS_PER_PAGE = 10;
   const [page, setPage] = useState(0);
 
   // 페이지네이션 데이터
-  const totalPages = Math.max(1, Math.ceil(tableData.length / ITEMS_PER_PAGE));
-  const pagedData = tableData.slice(
+  const totalPages = Math.max(
+    1,
+    Math.ceil(sortedTableData.length / ITEMS_PER_PAGE)
+  );
+  const pagedData = sortedTableData.slice(
     page * ITEMS_PER_PAGE,
     (page + 1) * ITEMS_PER_PAGE
   );
@@ -185,6 +190,22 @@ function AdServingPage() {
   // 광고 자리 클릭 시 adinfo로 이동
   const handleSlotClick = (slotId) => {
     navigate(`/adinfo/${slotId}`);
+  };
+
+  // 입찰 상태 라벨 함수
+  const getBidStatusLabel = (status) => {
+    switch (status) {
+      case 0:
+        return '입찰 전';
+      case 1:
+        return '입찰 중';
+      case 2:
+        return '입찰 성공';
+      case 3:
+        return '입찰 실패';
+      default:
+        return '-';
+    }
   };
 
   // 테이블 컬럼 정의
@@ -319,7 +340,7 @@ function AdServingPage() {
                                   ?.name || row.name}
                               </span>
                             ),
-                            상태: row.status,
+                            상태: getBidStatusLabel(row.status),
                             입찰가: row.price
                               ? `₩${row.price.toLocaleString()}`
                               : '-',

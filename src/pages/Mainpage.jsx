@@ -1,17 +1,14 @@
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { useEffect, useState, useCallback } from 'react'; // Added useCallback
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import ReactPaginate from 'react-paginate';
 import '../App.css';
-import ads from '../data/ads';
 import adslots from '../data/adslots';
 import adslotInfo from '../data/adslotInfo';
 import Header from '../components/Header';
-import {getAdSlots} from '../api/getAds';
+import { getAdSlots } from '../api/getAds';
 
 const region = [
   '서울',
@@ -28,7 +25,7 @@ const region = [
   '전남',
   '전체',
 ];
-const adStatus = ['전체', '입찰중', '게재중', '입찰완료'];
+const adStatus = ['전체', '입찰 전', '입찰 중', '입찰 완료'];
 
 const Wrapper = styled.div`
   display: flex;
@@ -116,6 +113,22 @@ const CheckboxGroupSection = ({ items, selectItem, setItem }) => {
   );
 };
 
+// 입찰 상태 라벨 함수
+const getBidStatusLabel = (status) => {
+  switch (status) {
+    case 0:
+      return '입찰 전';
+    case 1:
+      return '입찰 중';
+    case 2:
+      return '입찰 성공';
+    case 3:
+      return '입찰 실패';
+    default:
+      return '-';
+  }
+};
+
 const Mainpage = () => {
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
@@ -123,15 +136,30 @@ const Mainpage = () => {
   const [adSlots, setAdslots] = useState([]);
   const [selectRegion, setRegion] = useState(['전체']);
   const [selectadStatus, setadStatus] = useState(['전체']);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [budget, setBudget] = useState(2700000);
   const navigate = useNavigate();
 
-  const fetchFilterSlots = async () => {
+  const fetchFilterSlots = useCallback(async () => {
+    // Wrapped in useCallback
+    let apiBidStatus = null;
+    if (
+      selectadStatus &&
+      !selectadStatus.includes('전체') &&
+      selectadStatus.length > 0
+    ) {
+      const firstSelectedStatus = selectadStatus[0];
+      if (firstSelectedStatus === '입찰 전') {
+        apiBidStatus = '입찰 전';
+      } else if (firstSelectedStatus === '입찰 중') {
+        apiBidStatus = '입찰 중';
+      } else if (firstSelectedStatus === '입찰 완료') {
+        apiBidStatus = '입찰 종료';
+      }
+    }
+
     const body = {
       regions: selectRegion.includes('전체') ? null : selectRegion,
-      bidStatus: selectadStatus.includes('전체') ? null : selectadStatus[0],
+      bidStatus: apiBidStatus,
       price: budget,
     };
 
@@ -142,35 +170,31 @@ const Mainpage = () => {
         name: slot.SlotName,
         id: slot.adSlotId,
         region: slot.address?.split(' ')[0] || '서울',
-        status: ['입찰 전', '입찰 중', '입찰 종료'][slot.bidStatus] || '입찰 전',
+        status: getBidStatusLabel(slot.bidStatus),
         avgTraffic: `${15000 + idx * 1000}명`,
         avgScore: 80 - idx * 2,
         avgPrice: `₩ ${(1500000 + idx * 100000).toLocaleString()}`,
       }));
 
-      setAdSlots(SlotData);
+      setAdslots(SlotData);
     }
-  };
+  }, [selectRegion, selectadStatus, budget]); // Dependencies for useCallback
 
   useEffect(() => {
     fetchFilterSlots();
-  }, [selectRegion, selectadStatus, budget]);
+  }, [fetchFilterSlots]); // useEffect now depends on the memoized fetchFilterSlots
 
-  //날짜 불필요하면 삭제
-  const adsMap = Object.fromEntries(ads.map((ad) => [ad.id, ad]));
+  // 날짜 관련 로직 제거
+  //const filterSlots = adSlots;
   const filterSlots = adSlots.filter((slot) => {
-  const ad = adsMap[slot.id];
-  if (!ad) return false;
+    const numericPrice = parseInt(slot.avgPrice.replace(/[^\d]/g, ''), 10);
+    const matchBudget = numericPrice <= budget;
 
-  const adStart = new Date(ad.Startdate);
-  const adEnd = new Date(ad.Enddate);
+    const matchStatus =
+      selectadStatus.includes('전체') || selectadStatus.includes(slot.status);
 
-  return (
-    (!startDate || adEnd >= startDate) &&
-    (!endDate || adStart <= endDate)
-  );
-});
-  
+    return matchBudget && matchStatus;
+  }); // API에서 받아온 데이터를 그대로 사용
 
   const pageCount = Math.ceil(filterSlots.length / itemsPerPage);
   const current = page * itemsPerPage;
@@ -182,7 +206,7 @@ const Mainpage = () => {
 
   // 광고자리 클릭 시 Adinfo로 이동
   const handleSlotClick = (id) => {
-    navigate(`/ads/adslot/infor/${id}`);
+    navigate(`/adinfo/${id}`);
   };
 
   return (
@@ -207,28 +231,7 @@ const Mainpage = () => {
             setItem={setadStatus}
             label="광고 상태"
           />
-          <Title>기간</Title>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              selectsStart
-              startDate={startDate}
-              endDate={endDate}
-              placeholderText="시작일"
-              dateFormat="yyyy-MM-dd"
-            />
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              selectsEnd
-              startDate={startDate}
-              endDate={endDate}
-              minDate={startDate}
-              placeholderText="종료일"
-              dateFormat="yyyy-MM-dd"
-            />
-          </div>
+          {/* 기간 선택 UI 제거 */}
           <Title>예산 범위</Title>
           <Slider
             min={0}
@@ -281,13 +284,13 @@ const Mainpage = () => {
           ))}
           {pageCount > 1 && (
             <ReactPaginate
-            pageCount={pageCount}
-            previousLabel={'<'}
-            nextLabel={'>'}
-            onPageChange={handlePageChange}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-          />
+              pageCount={pageCount}
+              previousLabel={'<'}
+              nextLabel={'>'}
+              onPageChange={handlePageChange}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+            />
           )}
         </Container>
       </Wrapper>

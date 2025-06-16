@@ -3,7 +3,7 @@ const adslotInfo = {
     place: '강남역 2번 출구 디지털 패널',
     price: '₩ 2,450,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description:
       '강남역 2번 출구 앞 대형 디지털 광고판. 유동인구 최상. 20~40대 직장인 및 쇼핑객 중심.',
     size: '6m x 4m',
@@ -15,7 +15,7 @@ const adslotInfo = {
     place: '을지로 4가역 디지털 패널',
     price: '₩ 1,800,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description:
       '을지로 4가역 출구 앞 광고판. 직장인 유동인구 많음. 오피스 상권 중심.',
     size: '5m x 3m',
@@ -27,7 +27,7 @@ const adslotInfo = {
     place: '홍대입구역 9번 출구 디지털 패널',
     price: '₩ 2,100,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description:
       '홍대입구역 9번 출구 앞. 젊은 층, 유학생, 관광객 유동인구 풍부.',
     size: '5.5m x 3.5m',
@@ -39,7 +39,7 @@ const adslotInfo = {
     place: '신촌역 2번 출구 디지털 패널',
     price: '₩ 1,950,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description: '신촌역 2번 출구 앞. 대학가, 젊은 소비자 타겟.',
     size: '5m x 3m',
     location: '서울특별시 서대문구 신촌로 73',
@@ -50,7 +50,7 @@ const adslotInfo = {
     place: '수원역 1번 출구 디지털 패널',
     price: '₩ 1,600,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description:
       '수원역 1번 출구 앞. 경기 남부 최대 환승역, 가족 단위 유동인구.',
     size: '5m x 2.5m',
@@ -62,7 +62,7 @@ const adslotInfo = {
     place: '광주역 3번 출구 디지털 패널',
     price: '₩ 1,200,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description: '광주역 3번 출구 앞. 지역민, 관광객 유동인구.',
     size: '4.5m x 2.5m',
     location: '광주광역시 북구 무등로 235',
@@ -73,7 +73,7 @@ const adslotInfo = {
     place: '전주역 1번 출구 디지털 패널',
     price: '₩ 1,100,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description: '전주역 1번 출구 앞. 전주 한옥마을 관광객, 지역민 유동인구.',
     size: '4m x 2.5m',
     location: '전라북도 전주시 덕진구 동부대로 680',
@@ -84,7 +84,7 @@ const adslotInfo = {
     place: '부산역 5번 출구 디지털 패널',
     price: '₩ 2,200,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description: '부산역 5번 출구 앞. 관광객, 비즈니스 출장이 많은 지역.',
     size: '6m x 3m',
     location: '부산광역시 동구 중앙대로 206',
@@ -95,7 +95,7 @@ const adslotInfo = {
     place: '대구역 2번 출구 디지털 패널',
     price: '₩ 1,500,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description: '대구역 2번 출구 앞. 지역민, 학생, 직장인 유동인구.',
     size: '5m x 2.5m',
     location: '대구광역시 북구 태평로 161',
@@ -106,7 +106,7 @@ const adslotInfo = {
     place: '창원역 1번 출구 디지털 패널',
     price: '₩ 1,000,000',
     period: '2025.05.01 ~ 2025.05.31',
-    status: '진행중',
+    status: 1, // 진행중
     description: '창원역 1번 출구 앞. 경남권 주요 환승역, 지역민 중심.',
     size: '4m x 2m',
     location: '경상남도 창원시 의창구 창원대로 18',

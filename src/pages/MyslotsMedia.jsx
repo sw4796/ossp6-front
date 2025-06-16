@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import Header from '../components/Header';
 import '../App.css';
-import adslots from '../data/adslots';
+import { getMyAdSlots } from '../api/getMyAdSlots';
 import ReactPaginate from 'react-paginate';
 import { AuthContext } from '../providers/AuthContext';
+import more_icon from '../assets/icon-dropdown.png';
+import { startBidForAdSlot } from '../api/startBidForAdSlot';
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,45 +119,101 @@ const Textdetail = styled.div`
   font-weight: 400;
 `;
 
+// 광고자리 상태 enum 라벨 매핑 함수
+const getAdSlotStatusLabel = (status) => {
+  switch (status) {
+    case 0:
+      return '입찰 전';
+    case 1:
+      return '입찰 진행중';
+    case 2:
+      return '광고 게재중';
+    default:
+      return '-';
+  }
+};
+// 광고자리 상태별 스타일 클래스
+const getAdSlotStatusClass = (status) => {
+  switch (status) {
+    case 0:
+      return 'status-before'; // 입찰 전
+    case 1:
+      return 'status-bidding'; // 입찰 진행중
+    case 2:
+      return 'status-active'; // 광고 게재중
+    default:
+      return '';
+  }
+};
+
 function MyslotsMedia() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
+  const [slotList, setSlotList] = useState([]);
+  const [stats, setStats] = useState({
+    totalCount: 0,
+    activeCount: 0,
+    totalTraffic: 0,
+    totalRevenue: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
     }
-    if (user && user.role !== 'media') {
+    if (user && user.role !== 'ADMIN') {
       navigate('/myads');
     }
   }, [user, navigate]);
 
-  // 광고자리 데이터에 필요한 필드 추가 (mock 데이터)
-  const slotList = adslots
-    .filter((slot) => slot.ownerId === user?.id)
-    .map((slot, idx) => ({
-      ...slot,
-      // 상태: 2가지(진행중, 게재중지)만 사용
-      status: idx % 2 === 0 ? '진행중' : '게재중지',
-      avgTraffic: 12000 + idx * 1000,
-      avgCompetition: ['낮음', '보통', '높음', '매우 높음'][idx % 4],
-      monthlyRevenue: 1000000 + idx * 200000,
-    }));
-
-  const totalCount = slotList.length;
-  const activeCount = slotList.filter(
-    (slot) => slot.status === '진행중'
-  ).length;
-  const totalTraffic = slotList.reduce(
-    (sum, slot) => sum + (slot.avgTraffic || 0),
-    0
-  );
-  const totalRevenue = slotList.reduce(
-    (sum, slot) => sum + (slot.monthlyRevenue || 0),
-    0
-  );
+  useEffect(() => {
+    const fetchSlots = async () => {
+      console.log('AuthContext user:', user); // user 객체 구조 확인
+      if (!user?.userId && !user?.id) return;
+      setLoading(true);
+      try {
+        const res = await getMyAdSlots(user.userId || user.id);
+        console.log('getMyAdSlots response:', res); // API 응답 전체 확인
+        // 응답 구조에 맞게 데이터 매핑
+        if (res.success) {
+          const slots = (res.data.adSlots || []).map((slot, idx) => ({
+            id: slot.adSlotId ?? slot.adSlotId ?? `slot${idx}`,
+            name: slot.adSlotName || '-',
+            imageUrl: slot.imageUrl || '',
+            // 상태: bidStatus가 null이면 '진행중', 아니면 '게재중지'로 가정
+            status:
+              typeof slot.adSlotStatus === 'number' ? slot.adSlotStatus : 0,
+            avgTraffic: slot.viewCount ?? 0,
+            avgCompetition:
+              typeof slot.competition === 'number'
+                ? `${slot.competition}`
+                : slot.competition || '-',
+            monthlyRevenue: slot.bid ?? 0,
+          }));
+          setSlotList(slots);
+          setStats({
+            totalCount: res.data.totalAdSlotCount ?? slots.length,
+            activeCount: slots.filter((s) => s.status === '진행중').length,
+            totalTraffic:
+              res.data.totalViewCount ??
+              slots.reduce((sum, s) => sum + (s.avgTraffic || 0), 0),
+            totalRevenue:
+              res.data.totalBidAmount ??
+              slots.reduce((sum, s) => sum + (s.monthlyRevenue || 0), 0),
+          });
+        }
+      } catch {
+        // 에러 처리 필요시 추가
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSlots();
+  }, [user]);
 
   const handlePageChange = (page) => {
     setPage(page.selected);
@@ -176,17 +234,17 @@ function MyslotsMedia() {
           <Container1>
             <Title>활성 광고자리 수</Title>
             <Text>
-              {activeCount}
-              <Textdetail>&nbsp; / {totalCount}</Textdetail>
+              {stats.activeCount}
+              <Textdetail>&nbsp; / {stats.totalCount}</Textdetail>
             </Text>
           </Container1>
           <Container1>
             <Title>총 통행량</Title>
-            <Text>{totalTraffic?.toLocaleString() || '-'}</Text>
+            <Text>{stats.totalTraffic?.toLocaleString() || '-'}</Text>
           </Container1>
           <Container1>
             <Title>총 매출</Title>
-            <Text>{totalRevenue?.toLocaleString() + '원' || '-'}</Text>
+            <Text>{stats.totalRevenue?.toLocaleString() + '원' || '-'}</Text>
           </Container1>
         </RowWrapper>
         <Container>
@@ -197,58 +255,102 @@ function MyslotsMedia() {
             <Column>평균 통행량</Column>
             <Column>평균 경쟁률</Column>
             <Column>이번달 매출</Column>
+            <Column></Column> {/* 더보기 아이콘용 빈 컬럼 */}
           </ListHeader>
-          {currentPageList.map((slot, index) => (
-            <List key={index}>
-              <Column>
-                <span
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              로딩 중...
+            </div>
+          ) : currentPageList.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              광고자리가 없습니다.
+            </div>
+          ) : (
+            currentPageList.map((slot, idx) => (
+              <List key={slot.id}>
+                <Column>
+                  <span
+                    style={{
+                      color: 'black',
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      transition: 'color 0.15s',
+                    }}
+                    onClick={() => handleSlotClick(slot.id)}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.color = '#2563eb';
+                      e.currentTarget.style.textDecoration = 'underline';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.color = 'black';
+                      e.currentTarget.style.textDecoration = 'none';
+                    }}
+                  >
+                    {slot.name || '-'}
+                  </span>
+                </Column>
+                <Column>
+                  <StatusLabel
+                    className={`status-label ${getAdSlotStatusClass(slot.status)}`}
+                  >
+                    {getAdSlotStatusLabel(slot.status)}
+                  </StatusLabel>
+                </Column>
+                <Column>{slot.avgTraffic?.toLocaleString() || '-'}</Column>
+                <Column>{slot.avgCompetition || '-'}</Column>
+                <Column>
+                  {slot.monthlyRevenue?.toLocaleString() + '원' || '-'}
+                </Column>
+                <Column
                   style={{
-                    color: 'black',
-                    cursor: 'pointer',
-                    textDecoration: 'none',
-                    transition: 'color 0.15s',
-                  }}
-                  onClick={() => handleSlotClick(slot.id)}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.color = '#2563eb';
-                    e.currentTarget.style.textDecoration = 'underline';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.color = 'black';
-                    e.currentTarget.style.textDecoration = 'none';
+                    position: 'relative',
+                    width: 40,
+                    textAlign: 'center',
                   }}
                 >
-                  {slot.name || '-'}
-                </span>
-              </Column>
-              <Column>
-                <StatusLabel
-                  className={`status-label ${
-                    slot.status === '진행중'
-                      ? 'status-active'
-                      : slot.status === '게재중지'
-                        ? 'status-stop'
-                        : ''
-                  }`}
-                >
-                  {slot.status}
-                </StatusLabel>
-              </Column>
-              <Column>{slot.avgTraffic?.toLocaleString() || '-'}</Column>
-              <Column>{slot.avgCompetition || '-'}</Column>
-              <Column>
-                {slot.monthlyRevenue?.toLocaleString() + '원' || '-'}
-              </Column>
-            </List>
-          ))}
-          <ReactPaginate
-            pageCount={pageCount}
-            previousLabel={'<'}
-            nextLabel={'>'}
-            onPageChange={handlePageChange}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-          />
+                  <button
+                    className="p-2 rounded-full hover:bg-gray-100"
+                    onClick={() => setMenuOpen(menuOpen === idx ? null : idx)}
+                    tabIndex={0}
+                  >
+                    <img
+                      src={more_icon}
+                      alt="더보기"
+                      style={{ width: 20, height: 20 }}
+                    />
+                  </button>
+                  {menuOpen === idx && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-20">
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50"
+                        onClick={async () => {
+                          const res = await startBidForAdSlot(slot.id);
+                          if (res && res.success) {
+                            alert('입찰이 시작되었습니다!');
+                          } else {
+                            alert(res?.error || '입찰 시작에 실패했습니다.');
+                          }
+                          setMenuOpen(null);
+                        }}
+                      >
+                        입찰 시작
+                      </button>
+                    </div>
+                  )}
+                </Column>
+              </List>
+            ))
+          )}
+          {pageCount > 1 && (
+            <ReactPaginate
+              pageCount={pageCount}
+              previousLabel={'<'}
+              nextLabel={'>'}
+              onPageChange={handlePageChange}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+            />
+          )}
         </Container>
         <Container>
           <Title>최근 활동</Title>
