@@ -165,9 +165,9 @@ const Mainpage = () => {
     const res = await getAdSlots(body); // POST 요청
     if (res?.success && Array.isArray(res.data)) {
       const SlotData = res.data.map((slot) => {
-        // bidStatus가 null이면 '-'로, 0/1/2면 상태명으로 변환
+        // bidStatus가 0 또는 null이면 '입찰 전', 1이면 '입찰 진행중', 2이면 '광고 게재중'
         let statusLabel = '-';
-        if (slot.bidStatus === 0) statusLabel = '입찰 전';
+        if (slot.bidStatus === 0 || slot.bidStatus === null) statusLabel = '입찰 전';
         else if (slot.bidStatus === 1) statusLabel = '입찰 진행중';
         else if (slot.bidStatus === 2) statusLabel = '광고 게재중';
         return {
