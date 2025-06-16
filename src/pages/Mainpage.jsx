@@ -25,7 +25,8 @@ const region = [
   '전남',
   '전체',
 ];
-const adStatus = ['전체', '입찰 전', '입찰 중', '입찰 완료'];
+// 광고자리 상태(AdSlotStatus)에 맞게 필터 옵션 수정
+const adStatus = ['전체', '입찰 전', '입찰 진행중', '광고 게재중'];
 
 const Wrapper = styled.div`
   display: flex;
@@ -148,10 +149,10 @@ const Mainpage = () => {
       const firstSelectedStatus = selectadStatus[0];
       if (firstSelectedStatus === '입찰 전') {
         apiBidStatus = '입찰 전';
-      } else if (firstSelectedStatus === '입찰 중') {
-        apiBidStatus = '입찰 중';
-      } else if (firstSelectedStatus === '입찰 완료') {
-        apiBidStatus = '입찰 종료';
+      } else if (firstSelectedStatus === '입찰 진행중') {
+        apiBidStatus = '입찰 진행중';
+      } else if (firstSelectedStatus === '광고 게재중') {
+        apiBidStatus = '광고 게재중';
       }
     }
 
@@ -248,7 +249,7 @@ const Mainpage = () => {
         </Container>
 
         <Container>
-          <Title>입찰 광고 보기</Title>
+          <Title>광고자리 보기</Title>
           <ListHeader>
             <Column>광고자리명</Column>
             <Column>주소</Column>
